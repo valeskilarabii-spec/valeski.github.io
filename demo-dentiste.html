@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Demo - Clinique Dentaire IA</title>
+<style>body{font-family:Arial; text-align:center; padding:50px;} .box{border:1px solid #ddd; padding:30px; border-radius:15px;}</style>
+</head>
+<body>
+<div class="box">
+<h1>Clinique Dentaire Sourire Plus - Montreal</h1>
+<p>Ceci est une DEMO de votre future assistante IA</p>
+<p>👉 Cliquez sur la bulle en bas à droite pour tester</p>
+<p>Essayez : "Je veux un RDV pour nettoyage"</p>
+</div>
+
+<script type="text/javascript">
+  (function(d, t) {
+      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+      v.onload = function() {
+        window.voiceflow.chat.load({
+          verify: { projectID: '69edd0129980b8fa07873d3' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production'
+        });
+      }
+      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+  })(document, 'script');
+</script>
+
+</body>
+</html>
