@@ -2,14 +2,20 @@
 <html>
 <head>
 <title>Demo - Clinique Dentaire IA</title>
-<style>body{font-family:Arial; text-align:center; padding:50px;} .box{border:1px solid #ddd; padding:30px; border-radius:15px;}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial; text-align:center; padding:50px; background:#f7f7f7;}
+.box{background:white; border:1px solid #ddd; padding:40px; border-radius:15px; max-width:600px; margin:0 auto;}
+h1{color:#0A3D62;}
+</style>
 </head>
 <body>
 <div class="box">
 <h1>Clinique Dentaire Sourire Plus - Montreal</h1>
 <p>Ceci est une DEMO de votre future assistante IA</p>
-<p>👉 Cliquez sur la bulle en bas à droite pour tester</p>
+<p>👉 <b>Cliquez sur la bulle en bas à droite pour tester</b></p>
 <p>Essayez : "Je veux un RDV pour nettoyage"</p>
+<p style="margin-top:30px; font-size:13px; color:green;">✅ Bot en ligne 24h/24 - Testez maintenant</p>
 </div>
 
 <script type="text/javascript">
@@ -19,7 +25,10 @@
         window.voiceflow.chat.load({
           verify: { projectID: '69edd0129980b8fa07873d3' },
           url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production'
+          versionID: 'production',
+          assistant: {
+            launcher: "Je veux un RDV"
+          }
         });
       }
       v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
