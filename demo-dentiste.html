@@ -1,101 +1,31 @@
-<!DOCTYPE html>
-<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Démo assistant dentaire</title>
-<style>
-*{box-sizing:border-box;margin:0}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#10303c;background:#f4f9fb;min-height:100vh}
-header{background:#fff;padding:16px 24px;font-weight:700;color:#0a7ea4;border-bottom:1px solid #dbe9ef}
-.hero{background:#0a7ea4;color:#fff;text-align:center;padding:72px 20px}
-.hero h1{font-size:clamp(26px,5vw,44px);line-height:1.15;max-width:18ch;margin:0 auto 14px}
-.hero p{max-width:52ch;margin:0 auto;opacity:.92}
-#fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border-radius:50%;border:0;background:#0a7ea4;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 14px #0003}
-#box{position:fixed;right:20px;bottom:96px;width:min(380px,calc(100vw - 40px));height:min(560px,calc(100vh - 120px));background:#fff;border-radius:14px;box-shadow:0 8px 30px #0003;display:none;flex-direction:column;overflow:hidden}
-#box.on{display:flex}
-#top{background:#0a7ea4;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;font-weight:600}
-#top button{background:none;border:0;color:#fff;font-size:20px;cursor:pointer}
-#log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#f4f9fb}
-.m{max-width:85%;padding:10px 12px;border-radius:12px;font-size:14.5px;line-height:1.4;white-space:pre-line;word-wrap:break-word}
-.b{background:#fff;border:1px solid #dbe9ef;align-self:flex-start}
-.u{background:#0a7ea4;color:#fff;align-self:flex-end}
-.card{background:#fff8e6;border:1px dashed #d9a400;font-size:13px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chips button{border:1px solid #0a7ea4;background:#fff;color:#0a7ea4;border-radius:16px;padding:6px 12px;font-size:13.5px;cursor:pointer}
-.chips button:hover,.chips button:focus-visible{background:#0a7ea4;color:#fff}
-.wa{display:inline-block;background:#1faa59;color:#fff;text-decoration:none;border-radius:16px;padding:7px 14px;font-size:14px;align-self:flex-start}
-form{display:flex;gap:8px;padding:10px;border-top:1px solid #dbe9ef}
-input{flex:1;border:1px solid #c5d8e0;border-radius:20px;padding:10px 14px;font-size:15px}
-form button{border:0;background:#0a7ea4;color:#fff;border-radius:20px;padding:0 16px;cursor:pointer;font-size:15px}
-:focus-visible{outline:2px solid #0a7ea4;outline-offset:2px}
-</style></head><body>
-<header id="brand"></header>
-<section class="hero"><h1 id="h1"></h1><p id="sub"></p></section>
-<button id="fab" aria-label="Chat">💬</button>
-<div id="box" role="dialog" aria-label="Assistant"><div id="top"><span id="ttl"></span><button id="x" aria-label="Close">✕</button></div><div id="log" aria-live="polite"></div>
-<form id="f"><input id="in" autocomplete="off"><button id="send">➤</button></form></div>
-<script>
-/* Config par URL : ?clinic=Smile+Care&city=Lyon&lang=fr&wa=33612345678 */
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Démo assistant dentaire</title><style>*{box-sizing:border-box;margin:0}body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#10303c;background:#f4f9fb;min-height:100vh}header{background:#fff;padding:16px 24px;font-weight:700;color:#0a7ea4;border-bottom:1px solid #dbe9ef}.hero{background:#0a7ea4;color:#fff;text-align:center;padding:72px 20px}.hero h1{font-size:clamp(26px,5vw,44px);line-height:1.15;max-width:18ch;margin:0 auto 14px}.hero p{max-width:52ch;margin:0 auto;opacity:.92}#fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border-radius:50%;border:0;background:#0a7ea4;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 14px #0003}#box{position:fixed;right:20px;bottom:96px;width:min(380px,calc(100vw - 40px));height:min(560px,calc(100vh - 120px));background:#fff;border-radius:14px;box-shadow:0 8px 30px #0003;display:none;flex-direction:column;overflow:hidden}#box.on{display:flex}#top{background:#0a7ea4;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;font-weight:600}#top button{background:none;border:0;color:#fff;font-size:20px;cursor:pointer}#log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#f4f9fb}.m{max-width:85%;padding:10px 12px;border-radius:12px;font-size:14.5px;line-height:1.4;white-space:pre-line;word-wrap:break-word}.b{background:#fff;border:1px solid #dbe9ef;align-self:flex-start}.u{background:#0a7ea4;color:#fff;align-self:flex-end}.card{background:#fff8e6;border:1px dashed #d9a400;font-size:13px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border:1px solid #0a7ea4;background:#fff;color:#0a7ea4;border-radius:16px;padding:6px 12px;font-size:13.5px;cursor:pointer}.chips button:hover{background:#0a7ea4;color:#fff}.wa{display:inline-block;background:#1faa59;color:#fff;text-decoration:none;border-radius:16px;padding:7px 14px;font-size:14px;align-self:flex-start}form{display:flex;gap:8px;padding:10px;border-top:1px solid #dbe9ef}input{flex:1;border:1px solid #c5d8e0;border-radius:20px;padding:10px 14px;font-size:15px}form button{border:0;background:#0a7ea4;color:#fff;border-radius:20px;padding:0 16px;cursor:pointer;font-size:15px}</style></head><body><header id="brand"></header><section class="hero"><h1 id="h1"></h1><p id="sub"></p></section><button id="fab">💬</button><div id="box"><div id="top"><span id="ttl"></span><button id="x">✕</button></div><div id="log"></div><form id="f"><input id="in" autocomplete="off"><button>➤</button></form></div><script>
 const q=new URLSearchParams(location.search);
-let lang=(q.get('lang')||navigator.language||'en').slice(0,2).toLowerCase();if(!['fr','en'].includes(lang))lang='en';
-const C={clinic:q.get('clinic')||(lang=='fr'?'Votre clinique dentaire':'Your dental clinic'),city:q.get('city')||'',wa:(q.get('wa')||'').replace(/\D/g,''),notify:q.get('notify')||'',key:q.get('key')||''};
+let lang=(q.get('lang')||'fr').slice(0,2).toLowerCase();if(!['fr','en'].includes(lang))lang='fr';
+const C={clinic:q.get('clinic')||'Clinique Sourire+ Cocody',city:q.get('city')||'Abidjan',wa:(q.get('wa')||'2250705834850').replace(/\D/g,''),notify:q.get('notify')||''};
 const T={
-fr:{brand:'🦷 ',h1:n=>'Assistant IA de '+n,sub:'Démo : votre assistant répond aux patients et prend les demandes de rendez-vous 24h/24. Cliquez sur la bulle.',
- ttl:'Assistant',ph:'Écrivez votre message…',
- hi:n=>'Bonjour ! Je suis l’assistant de '+n+'. Comment puis-je vous aider ?',
- chips:['Prendre rendez-vous','Tarifs','Horaires','Urgence dentaire'],
- price:'Le prix dépend du soin (détartrage, carie, blanchiment, appareil…). Le dentiste établit un devis précis après la première consultation. Voulez-vous réserver ?',
- hours:'Les horaires exacts de la clinique s’affichent ici. Je peux aussi transmettre votre demande de rendez-vous : quel moment vous arrange ?',
- where:'L’adresse et le plan d’accès de la clinique s’affichent ici, avec un lien vers Google Maps.',
- urgent:'Je suis désolé que vous souffriez. Pour une douleur forte, un gonflement ou un saignement, donnez votre numéro et la clinique vous rappelle en priorité. Quel est votre prénom ?',
- askName:'Très bien. Quel est votre prénom ?',askPhone:n=>'Merci '+n+'. Quel est votre numéro de téléphone (avec l’indicatif du pays) ?',
- badPhone:'Ce numéro semble incomplet. Merci de l’écrire avec l’indicatif, par exemple +33 6 12 34 56 78.',
- askTime:'Quand préférez-vous être appelé(e) ?',timeChips:['Aujourd’hui','Demain','Cette semaine'],
- done:(n,t,c)=>'Merci '+n+', votre demande est enregistrée ('+t+'). '+c+' vous contactera pour fixer l’horaire exact.',
- cardT:'Démo : voici ce que la clinique reçoit',f:['Patient','Téléphone','Souhait','Motif','Reçu le'],
- reasonB:'Rendez-vous',reasonU:'Urgence',wa:'Continuer sur WhatsApp',
- sent:'✅ La clinique vient de recevoir cette demande par notification.',failed:'⚠️ La notification n’a pas pu être envoyée. Contactez directement la clinique.',nosend:'Mode démo : aucune notification réelle envoyée (voir le paramètre notify).',
- thanks:'Avec plaisir ! Autre chose ?',human:'Laissez-moi votre prénom et votre numéro, un membre de l’équipe vous rappelle.',
- cancel:'D’accord, j’annule. Que puis-je faire d’autre ?',
- fb:'Je n’ai pas bien compris. Choisissez une option ci-dessous ou reformulez.'},
-en:{brand:'🦷 ',h1:n=>n+' AI Assistant',sub:'Demo: your assistant answers patients and collects appointment requests 24/7. Click the bubble.',
- ttl:'Assistant',ph:'Type your message…',
- hi:n=>'Hello! I’m the assistant for '+n+'. How can I help?',
- chips:['Book appointment','Prices','Opening hours','Dental emergency'],
- price:'Cost depends on the treatment (cleaning, filling, whitening, braces…). The dentist gives an exact quote after the first visit. Would you like to book?',
- hours:'The clinic’s exact opening hours appear here. I can also pass on an appointment request: when suits you?',
- where:'The clinic’s address and a Google Maps link appear here.',
- urgent:'I’m sorry you’re in pain. For severe pain, swelling or bleeding, leave your number and the clinic will call you back first. What’s your first name?',
- askName:'Sure. What’s your first name?',askPhone:n=>'Thanks '+n+'. What’s your phone number (with country code)?',
- badPhone:'That number looks incomplete. Please include the country code, e.g. +1 415 555 0132.',
- askTime:'When would you like to be called?',timeChips:['Today','Tomorrow','This week'],
- done:(n,t,c)=>'Thanks '+n+', your request is recorded ('+t+'). '+c+' will contact you to confirm the exact time.',
- cardT:'Demo: what the clinic receives',f:['Patient','Phone','Preferred','Reason','Received'],
- reasonB:'Appointment',reasonU:'Emergency',wa:'Continue on WhatsApp',
- sent:'✅ The clinic just received this request as a notification.',failed:'⚠️ The notification could not be sent. Please contact the clinic directly.',nosend:'Demo mode: no real notification sent (see the notify parameter).',
- thanks:'You’re welcome! Anything else?',human:'Leave your first name and number and a team member will call you back.',
- cancel:'No problem, cancelled. Anything else?',
- fb:'I didn’t quite get that. Pick an option below or rephrase.'}};
+fr:{brand:'🦷 ',h1:n=>'Assistant IA de '+n,sub:'Démo : votre assistant répond aux patients et prend les RDV 24h/24. Cliquez sur la bulle.',ttl:'Assistante Abidjan',ph:'Écrivez votre message…',hi:n=>'Bonjour ! Je suis l’assistante de '+n+'. Comment puis-je vous aider ?',chips:['Prendre rendez-vous','Tarifs','Horaires','Urgence dentaire'],price:'Le prix dépend du soin (détartrage 25.000F, blanchiment 45.000F, consultation 15.000F). Le dentiste fait un devis précis après consultation. Voulez-vous réserver ?',hours:'Ouvert Lundi-Samedi 8h-18h. Je peux transmettre votre demande : quel moment vous arrange ?',where:'Nous sommes à Cocody Rue des Jardins, Abidjan. Lien Google Maps sur demande.',urgent:'Je suis désolé que vous souffriez. Pour douleur forte/gonflement/saignement, donnez votre prénom et on vous rappelle en priorité.',askName:'Parfait. Quel est votre prénom ?',askPhone:n=>'Merci '+n+'. Votre numéro WhatsApp avec indicatif (ex: +225 07...)?',badPhone:'Numéro incomplet. Exemple : +225 07 05 83 48 50',askTime:'Quand préférez-vous être appelé(e) ?',timeChips:['Aujourd’hui','Demain','Cette semaine'],done:(n,t,c)=>'Merci '+n+', demande enregistrée ('+t+'). '+c+' vous contactera.',cardT:'Démo : ce que la clinique reçoit',f:['Patient','Téléphone','Souhait','Motif','Reçu le'],reasonB:'Rendez-vous',reasonU:'Urgence',wa:'Continuer sur WhatsApp',thanks:'Avec plaisir ! Autre chose ?',cancel:'D’accord, j’annule.',fb:'Je n’ai pas compris. Choisissez ci-dessous :'},
+en:{brand:'🦷 ',h1:n=>n+' AI Assistant',sub:'Demo: answers patients 24/7. Click bubble.',ttl:'Assistant',ph:'Type your message…',hi:n=>'Hello! I’m assistant for '+n+'. How can I help?',chips:['Book appointment','Prices','Hours','Emergency'],price:'Price depends on treatment. Dentist gives quote after first visit. Book?',hours:'Opening hours here. When suits you?',where:'Address + Google Maps link here.',urgent:'Sorry you’re in pain. Leave name, clinic calls back priority.',askName:'What’s your first name?',askPhone:n=>'Thanks '+n+'. Phone with country code?',badPhone:'Number looks incomplete. Eg +1 415 555 0132.',askTime:'When to call you?',timeChips:['Today','Tomorrow','This week'],done:(n,t,c)=>'Thanks '+n+', request recorded ('+t+'). '+c+' will contact you.',cardT:'Demo: what clinic receives',f:['Patient','Phone','Preferred','Reason','Received'],reasonB:'Appointment',reasonU:'Emergency',wa:'Continue on WhatsApp',thanks:'Welcome! Anything else?',cancel:'Cancelled.',fb:'Did not get that. Pick below:'}
+};
 const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-const R={cancel:/\b(annul|cancel|stop|laisse tomber|never ?mind)/,urgent:/(urgen|douleur|mal aux dents|rage de dent|abces|gonfl|saign|pain|emergency|swell|bleed|cass[eé]|broken|ache)/,
-book:/(rdv|rendez|reserv|prendre|book|appointment|schedul|consult)/,price:/(prix|tarif|cout|combien|devis|price|cost|how much|fee|quote)/,
-hours:/(horaire|heure|ouvert|ferme|hours|open|clos)/,where:/(adresse|ou etes|ou se trouve|localis|situe|address|where|location|direction|map)/,
-human:/(humain|parler|appeler|call me|human|person|someone|agent)/,thanks:/(merci|thank|super|parfait|genial|great|perfect|cool|^ok)/,hi:/\b(bonjour|bonsoir|salut|coucou|hello|hi|hey|hola)\b/};
-function sniff(t){if(/\b(hello|hi|hey|appointment|price|prices|how much|thanks|thank you|book|emergency)\b/.test(t))lang='en';else if(/\b(bonjour|bonsoir|salut|rdv|rendez|prix|tarif|merci|urgence|horaires)\b/.test(t))lang='fr'}
+const R={cancel:/\b(annul|cancel|stop|laisse tomber|never ?mind)\b/,urgent:/\b(urgen|douleur|mal aux dents|rage de dent|abces|gonfl|saign|pain|emergency|swell|bleed|cass|broken|ache)\b/,book:/\b(rdv|rendez|reserv|prendre|book|appointment|schedul|consult)\b/,price:/\b(prix|tarif|cout|combien|devis|price|cost|how much|fee|quote|blanchiment|detartrage)\b/,hours:/\b(horaire|heure|ouvert|ferme|hours|open|clos)\b/,where:/\b(adresse|ou etes|ou se trouve|localis|situe|address|where|location|map)\b/,human:/\b(humain|parler|appeler|call me|human|person|agent)\b/,thanks:/\b(merci|thank|super|parfait|genial|great|perfect)\b/,hi:/\b(bonjour|bonsoir|salut|coucou|hello|hi|hey)\b/};
 const $=id=>document.getElementById(id),log=$('log');let st={step:null,name:'',phone:'',urgent:false};
-const L=()=>T[lang],name=C.clinic+(C.city?' – '+C.city:'');
+const L=()=>T[lang],name=C.clinic+(C.city?' - '+C.city:'');
 function ui(){document.documentElement.lang=lang;$('brand').textContent='🦷 '+name;$('h1').textContent=L().h1(name);$('sub').textContent=L().sub;$('ttl').textContent=L().ttl;$('in').placeholder=L().ph;document.title=name}
-function add(t,cls){const d=document.createElement('div');d.className='m '+cls;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
-function chips(a){const d=document.createElement('div');d.className='chips';a.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;b.onclick=()=>handle(x);d.appendChild(b)});log.appendChild(d);log.scrollTop=log.scrollHeight}
-function bot(t,c,after){setTimeout(()=>{add(t,'b');if(c)chips(c);if(after)after()},450)}
-function menu(){return L().chips}
-async function send(p){if(!/^https:\/\//.test(C.notify))return 'none';
- try{const b={subject:'Nouveau patient – '+C.clinic,from_name:'Assistant '+C.clinic,clinic:C.clinic,patient:p.name,phone:p.phone,preferred:p.time,reason:p.reason,received:p.now,
- message:p.reason+' | '+p.name+' | '+p.phone+' | '+p.time+' | '+p.now};if(C.key)b.access_key=C.key;
- const r=await fetch(C.notify,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(b)});return r.ok?'ok':'fail'}catch(e){return 'fail'}}
-function finish(time){const l=L(),now=new Date().toLocaleString(lang),reason=st.urgent?l.reasonU:l.reasonB,lead={name:st.name,phone:st.phone,time,reason,now};
- bot(l.done(st.name,time,C.clinic),null,()=>{const v=[lead.name,lead.phone,time,reason,now];add(l.cardT+'\n'+l.f.map((k,i)=>k+' : '+v[i]).join('\n'),'card');
- if(C.wa){const a=document.createElement('a');a.className='wa';a.textContent=l.wa;a.target='_blank';a.rel='noopener';a.href='https://wa.me/'+C.wa+'?text='+encodeURIComponent(C.clinic+' – '+reason+' – '+lead.name+' – '+time);log.appendChild(a)}
- send(lead).then(s=>{add(s=='ok'?l.sent:s=='fail'?l.failed:l.nosend,s=='none'?'card':'b');chips(menu())})});st={step:null,name:'',phone:'',urgent:false}}
+function add(t,cls){const d=document.createElement('div');d.className='m '+cls;d.textContent=t;log.appendChild(d);log.scrollTop=9999;return d}
+function chips(a){const d=document.createElement('div');d.className='chips';a.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;b.onclick=()=>handle(x);d.appendChild(b)});log.appendChild(d);log.scrollTop=9999}
+function bot(t,c,after){setTimeout(()=>{add(t,'b');if(c)chips(c);if(after)after()},400)}
+function handle(raw){const t=raw.trim();if(!t)return;add(t,'u');let n=norm(t);if(R.cancel.test(n)){st={step:null,name:'',phone:'',urgent:false};bot(L().cancel, L().chips);return}
+if(st.step==='name'){st.name=t;st.step='phone';bot(L().askPhone(st.name));return}
+if(st.step==='phone'){if(t.replace(/\D/g,'').length<8){bot(L().badPhone);return}st.phone=t;st.step='time';bot(L().askTime, L().timeChips);return}
+if(st.step==='time'){const time=t;const l=L(),now=new Date().toLocaleString(lang),reason=st.urgent?l.reasonU:l.reasonB;const v=[st.name||'Patient',st.phone,time,reason,now];add(l.cardT+'\n'+l.f.map((k,i)=>k+' : '+v[i]).join('\n'),'card');if(C.wa){const a=document.createElement('a');a.className='wa';a.textContent=l.wa;a.target='_blank';a.href='https://wa.me/'+C.wa+'?text='+encodeURIComponent(C.clinic+' - '+reason+' - '+st.name+' - '+time);log.appendChild(a);}bot(l.done(st.name||'Patient',time,C.clinic), L().chips);st={step:null,name:'',phone:'',urgent:false};return}
+if(R.urgent.test(n)){st.urgent=true;st.step='name';bot(L().urgent+' '+L().askName);return}
+if(R.book.test(n)){st.urgent=false;st.step='name';bot(L().askName);return}
+if(R.price.test(n)){bot(L().price, L().chips);return}
+if(R.hours.test(n)){bot(L().hours, L().timeChips);return}
+if(R.where.test(n)){bot(L().where, L().chips);return}
+if(R.thanks.test(n)||R.hi.test(n)){bot(L().hi(C.clinic), L().chips);return}
+bot(L().fb, L().chips);
+}
 $('f').onsubmit=e=>{e.preventDefault();const v=$('in').value;$('in').value='';handle(v)};
-let opened=false;function toggle(){$('box').classList.toggle('on');if(!opened){opened=true;bot(L().hi(C.clinic),menu())}$('in').focus()}
-$('fab').onclick=toggle;$('x').onclick=()=>$('box').classList.remove('on');ui();
+$('fab').onclick=()=>{$('box').classList.toggle('on');if(!log.children.length)bot(L().hi(C.clinic), L().chips)};$('x').onclick=()=>$('box').classList.remove('on');ui();
 </script></body></html>
