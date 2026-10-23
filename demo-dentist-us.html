@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Universal Medical AI - Dental Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #f5f8fc;
+      color: #132e3f;
+    }
+    header {
+      background: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #e6eef4;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header .plus {
+      width: 28px;
+      height: 28px;
+      background: #eef6ff;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #0a7ea4;
+      font-weight: 900;
+    }
+    header b { font-size: 14px; }
+
+    .hero {
+      background: radial-gradient(120% 120% at 50% 0%, #1a3a8a 0%, #0a2350 60%, #061536 100%);
+      color: #fff;
+      text-align: center;
+      padding: 72px 20px 90px;
+    }
+    .hero .kicker {
+      font-size: 12px;
+      letter-spacing: .2em;
+      opacity: .7;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 4.5vw, 42px);
+      line-height: 1.15;
+      max-width: 16ch;
+      margin: 0 auto 16px;
+      font-weight: 800;
+    }
+    .hero p {
+      opacity: .85;
+      max-width: 58ch;
+      margin: 0 auto;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .cards {
+      max-width: 980px;
+      margin: -52px auto 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      padding: 0 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 12px 32px rgba(0,20,60,.12);
+      border: 1px solid #eaf0f6;
+    }
+    .card .ic {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .card h3 { font-size: 14px; margin-bottom: 6px; }
+    .card p { font-size: 12.5px; color: #5a7384; line-height: 1.5; }
+
+    /* CHAT WIDGET */
+    #fab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #0a7ea4;
+      border: 0;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px #0004;
+      z-index: 9999;
+    }
+    #box {
+      position: fixed;
+      right: 16px;
+      bottom: 92px;
+      width: min(400px, calc(100vw - 20px));
+      height: min(600px, calc(100vh - 110px));
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 18px 50px #0005;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    #box.on { display: flex; }
+    #top {
+      background: #0a7ea4;
+      color: #fff;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #top small { display: block; opacity: .85; font-weight: 400; font-size: 11px; }
+    #top button {
+      background: rgba(255,255,255,.2);
+      border: 0;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    #log {
+      flex: 1;
+      overflow: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #f6f9fb;
+    }
+    .m {
+      max-width: 84%;
+      padding: 10px 13px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    .b { background: #fff; border: 1px solid #dfeaf0; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .u { background: #0a7ea4; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .card-msg { background: #fff9e0; border: 1px dashed #c9a100; font-size: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chips button {
+      border: 1px solid #0a7ea4;
+      background: #fff;
+      color: #0a7ea4;
+      border-radius: 99px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chips button:hover { background: #0a7ea4; color: #fff; }
+    .act {
+      background: #1faa59;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 99px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+      margin: 4px;
+    }
+    form {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-top: 1px solid #e2ecf1;
+      background: #fff;
+    }
+    input {
+      flex: 1;
+      border: 1px solid #c6dbe4;
+      border-radius: 99px;
+      padding: 11px 14px;
+      font-size: 14px;
+      outline: none;
+    }
+    form button {
+      border: 0;
+      background: #0a7ea4;
+      color: #fff;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="plus">+</div>
+    <b id="brand">Universal Medical AI</b>
+  </header>
+
+  <section class="hero">
+    <div class="kicker">SMART MEDICAL FRONT DESK</div>
+    <h1 id="h1">A simpler medical front desk, anywhere in the world.</h1>
+    <p id="sub">An AI assistant that answers practical patient questions and forwards appointment requests to your front desk. Dental demo.</p>
+  </section>
+
+  <div class="cards">
+    <div class="card">
+      <div class="ic" style="background:#e7f3ff">🌍</div>
+      <h3>Built for your practice</h3>
+      <p>Custom practice name, city, hours and prices via URL: ?clinic=Smile+Dental&city=Austin</p>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:#eafaf0">💬</div>
+      <h3>Natural conversation</h3>
+      <p>Patients ask in their own words, typos included. The assistant understands: hi, prices, toothache, insurance...</p>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:#fff1f1">🛡️</div>
+      <h3>Responsible limits</h3>
+      <p>The assistant gives general information only and never replaces a healthcare professional. Every request is forwarded to your team.</p>
+    </div>
+  </div>
+
+  <button id="fab">💬</button>
+
+  <div id="box">
+    <div id="top">
+      <div>
+        <b id="ttl">Dental Front Desk</b>
+        <small id="ttl2">Instant answers • 24/7</small>
+      </div>
+      <button id="x">✕</button>
+    </div>
+    <div id="log"></div>
+    <form id="f">
+      <input id="in" placeholder="Ex: Hi, I have a toothache...">
+      <button>➤</button>
+    </form>
+  </div>
+
+<script>
+const q = new URLSearchParams(location.search);
+const C = {
+  clinic: q.get('clinic') || 'Smile Dental Studio',
+  city: q.get('city') || 'Austin',
+  tel: (q.get('tel') || '15125550123').replace(/\D/g,''),
+  mail: q.get('mail') || 'frontdesk@smiledental.com',
+  addr: q.get('addr') || '123 Main St, Suite 200'
+};
+
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const $ = id => document.getElementById(id);
+const log = $('log');
+
+let st = { step: null, name: '', phone: '', motif: 'Consultation' };
+
+const T = {
+  brand: 'Universal Medical AI',
+  h1: 'A simpler medical front desk, anywhere in the world.',
+  sub: 'An AI assistant that answers practical patient questions and forwards appointment requests to your front desk. Dental demo.',
+  ttl: 'Dental Front Desk',
+  ttl2: 'Dr & Team • 24/7',
+  hi: `Hello and welcome to <b>${esc(C.clinic)}</b> 🦷<br><br>I'm the virtual front desk assistant.<br><br>I can help with treatments (filling, cleaning, whitening, veneers, implants), estimated fees, insurance questions, and I'll forward your appointment request to the front desk.<br><br><small>I don't provide diagnosis. Only the doctor can do that in the chair.</small>`,
+  chips: ['Book appointment','Dental emergency','Fees','Address & Hours']
+};
+
+function ui() {
+  $('brand').textContent = T.brand;
+  $('h1').textContent = T.h1;
+  $('sub').textContent = T.sub;
+  $('ttl').textContent = T.ttl;
+  $('ttl2').textContent = `Dr & Team • ${esc(C.city)} • 24/7`;
+}
+
+function add(t, cls) {
+  const d = document.createElement('div');
+  d.className = 'm ' + cls;
+  d.innerHTML = t;
+  log.appendChild(d);
+  log.scrollTop = 9999;
+  return d;
+}
+function addU(t) {
+  const d = document.createElement('div');
+  d.className = 'm u';
+  d.textContent = t;
+  log.appendChild(d);
+  log.scrollTop = 9999;
+}
+function chipsArr(a) {
+  const d = document.createElement('div');
+  d.className = 'chips';
+  a.forEach(x => {
+    const b = document.createElement('button');
+    b.textContent = x;
+    b.onclick = () => handle(x);
+    d.appendChild(b);
+  });
+  log.appendChild(d);
+  log.scrollTop = 9999;
+}
+function bot(t, c) {
+  setTimeout(() => { add(t, 'b'); if (c) chipsArr(c); }, 300);
+}
+
+function handle(raw) {
+  const t = raw.trim();
+  if (!t) return;
+  addU(t);
+  let n = norm(t);
+
+  if (st.step === 'name') {
+    st.name = t.slice(0,40);
+    st.step = 'phone';
+    bot(`Thanks <b>${esc(st.name)}</b>.<br>What's the best phone number for the front desk to reach you?<br><small>Ex: (512) 555-0123</small>`);
+    return;
+  }
+  if (st.step === 'phone') {
+    if (t.replace(/\D/g,'').length < 7) {
+      bot(`That number looks incomplete. Example: <b>(512) 555-0123</b>`);
+      return;
+    }
+    st.phone = t;
+    st.step = 'time';
+    bot(`Great. What works best for your <b>${esc(st.motif)}</b>?`, ['This morning','Tomorrow 10am','Tomorrow 2:30pm','Flexible this week']);
+    return;
+  }
+  if (st.step === 'time') {
+    const now = new Date().toLocaleString('en-US');
+    const fiche = `<b>PATIENT REQUEST - ${esc(C.clinic)}</b><br>👤 ${esc(st.name)}<br>📞 ${esc(st.phone)}<br>🦷 ${esc(st.motif)}<br>⏰ ${esc(t)}<br>🕒 ${now}<br><br><small>To be handled by the front desk</small>`;
+    add(fiche, 'card-msg');
+    const body = encodeURIComponent(`${C.clinic} - ${st.motif} - ${st.name} - ${st.phone} - ${t}`);
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.flexWrap = 'wrap';
+    wrap.style.gap = '8px';
+
+    const a1 = document.createElement('a');
+    a1.className = 'act'; a1.target = '_blank'; a1.textContent = 'Text the front desk';
+    a1.href = `sms:+${C.tel}?&body=${body}`;
+
+    const a2 = document.createElement('a');
+    a2.className = 'act'; a2.target = '_blank'; a2.textContent = 'Email the request';
+    a2.href = `mailto:${C.mail}?subject=Appointment%20request%20-%20${encodeURIComponent(st.motif)}&body=${body}`;
+
+    wrap.appendChild(a1); wrap.appendChild(a2);
+    log.appendChild(wrap);
+
+    bot(`✅ <b>Thanks ${esc(st.name)}, request captured.</b><br>Your <b>${esc(st.motif.toLowerCase())}</b> request for <b>${esc(t)}</b> is recorded.<br>The front desk will confirm the exact time.<br><br>📍 ${esc(C.clinic)} - ${esc(C.city)}<br>🕘 Mon-Fri 8am-5pm, Sat 9am-1pm`, ['Thanks','Directions']);
+    st = { step: null, name: '', phone: '', motif: 'Consultation' };
+    return;
+  }
+
+  if (/cancel|forget it|never mind/.test(n)) {
+    st = { step: null, name: '', phone: '' };
+    bot(`No problem, request cancelled.`, T.chips);
+    return;
+  }
+  if (/\b(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(n) && t.length < 30) {
+    bot(T.hi, T.chips); return;
+  }
+  if (/price|fee|cost|how much|quote|insurance|whitening|veneer|cleaning|implant|cavity|crown|braces|invisalign/.test(n)) {
+    let soin = 'New patient exam';
+    if (/whitening/.test(n)) soin = 'Whitening';
+    if (/cleaning|scale/.test(n)) soin = 'Cleaning';
+    if (/veneer/.test(n)) soin = 'Veneer';
+    if (/implant/.test(n)) soin = 'Implant';
+    if (/cavity|filling/.test(n)) soin = 'Filling';
+    if (/crown|root canal/.test(n)) soin = 'Crown / Root canal';
+    if (/braces|invisalign|aligner|ortho/.test(n)) soin = 'Orthodontics';
+    st.motif = soin;
+    bot(`🦷 <b>${soin} - ${esc(C.city)} office</b><br><br><b>Estimated fees:</b><br>• Exam + X-ray: $89<br>• Cleaning + Polish: $150<br>• Composite filling: $200-$350<br>• In-office whitening: $350-$500<br>• Veneer: from $900<br>• Ceramic crown: from $1,200<br>• Implant: custom quote after CBCT<br><br><small>Final quote by the doctor after clinical exam.</small><br><br>Should I forward an appointment request for <b>${soin.toLowerCase()}</b>?`, ['Yes, book '+soin,'Address','Other treatment']);
+    return;
+  }
+  if (/address|where|located|direction|map|hours|open|close|schedule/.test(n)) {
+    bot(`📍 <b>${esc(C.clinic)} - ${esc(C.city)}</b><br>${esc(C.addr)}, ${esc(C.city)}<br><br>🕘 Mon-Fri 8am-5pm, Sat 9am-1pm<br>Sunday: emergency phone calls only<br><br><small>Every field is configurable via ?clinic= ?city= ?addr=</small>`, ['Book appointment','Fees','Call the office']);
+    return;
+  }
+  if (/emergen|pain|ache|abscess|swollen|bleed|broke|hurts/.test(n)) {
+    st.motif = 'Dental emergency - ' + t.slice(0,60);
+    st.step = 'name';
+    bot(`🚨 <b>Tooth pain: priority handling.</b><br><br>While you wait:<br>• Rinse with warm salt water, avoid aspirin on the gum<br>• Avoid very hot or cold food/drinks<br>• The front desk will call you back as a priority<br><br>What's your first name for the priority list?`);
+    return;
+  }
+  if (/appointment|book|schedule|visit|check ?up|consult|rdv/.test(n)) {
+    st.motif = 'Consultation';
+    st.step = 'name';
+    bot(`📅 I can take your appointment request.<br>What's your first name?`);
+    return;
+  }
+  bot(`Got it: "<b>${esc(t)}</b>".<br>Here's what I can help with:`, T.chips);
+}
+
+$('f').onsubmit = e => {
+  e.preventDefault();
+  const v = $('in').value;
+  $('in').value = '';
+  handle(v);
+};
+$('fab').onclick = () => {
+  $('box').classList.toggle('on');
+  if (!log.children.length) { bot(T.hi, T.chips); }
+};
+$('x').onclick = () => $('box').classList.remove('on');
+ui();
+</script>
+</body>
+</html>
