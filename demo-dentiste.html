@@ -1,11 +1,101 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Clinique IA Universelle</title><style>*{box-sizing:border-box;margin:0}body{font-family:system-ui;color:#10303c;background:#f4f9fb}header{background:#fff;padding:16px 24px;font-weight:700;color:#0a7ea4;border-bottom:1px solid #dbe9ef}.hero{background:#0a7ea4;color:#fff;text-align:center;padding:72px 20px}.hero h1{font-size:clamp(26px,5vw,44px);max-width:18ch;margin:0 auto 14px}.hero p{max-width:52ch;margin:0 auto;opacity:.92}#fab{position:fixed;right:20px;bottom:20px;width:62px;height:62px;border-radius:50%;border:0;background:#0a7ea4;color:#fff;font-size:26px;cursor:pointer;z-index:999;box-shadow:0 4px 14px #0003}#box{position:fixed;right:20px;bottom:96px;width:min(380px,calc(100vw - 40px));height:min(560px,calc(100vh - 120px));background:#fff;border-radius:14px;box-shadow:0 8px 30px #0003;display:none;flex-direction:column;overflow:hidden;z-index:999}#box.on{display:flex}#top{background:#0a7ea4;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;font-weight:600}#top button{background:none;border:0;color:#fff;font-size:20px;cursor:pointer}#log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#f4f9fb}.m{max-width:85%;padding:10px 12px;border-radius:12px;font-size:14.5px;line-height:1.4;white-space:pre-line}.b{background:#fff;border:1px solid #dbe9ef;align-self:flex-start}.u{background:#0a7ea4;color:#fff;align-self:flex-end}.card{background:#fff8e6;border:1px dashed #d9a400;font-size:13px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border:1px solid #0a7ea4;background:#fff;color:#0a7ea4;border-radius:16px;padding:6px 12px;font-size:13.5px;cursor:pointer}.wa{display:inline-block;background:#1faa59;color:#fff;text-decoration:none;border-radius:16px;padding:7px 14px;font-size:14px}form{display:flex;gap:8px;padding:10px;border-top:1px solid #dbe9ef}input{flex:1;border:1px solid #c5d8e0;border-radius:20px;padding:10px 14px;font-size:15px}form button{border:0;background:#0a7ea4;color:#fff;border-radius:20px;padding:0 16px;cursor:pointer}</style></head><body><header id="brand">🦷 Clinique Sourire+ Abidjan</header><section class="hero"><h1 id="h1">Assistant IA qui comprend TOUT</h1><p id="sub">Démo 24h/24 - Testez bonsoir, prix, adresse, urgence, même avec fautes</p></section><button id="fab">💬</button><div id="box"><div id="top"><span id="ttl">Assistante Abidjan</span><button id="x">✕</button></div><div id="log"></div><form id="f"><input id="in" placeholder="Posez n'importe quelle question..."><button>➤</button></form></div><script>
-const C={clinic:'Sourire+ Cocody',city:'Abidjan',wa:'2250705834850'};
-const T={fr:{hi:n=>'Bonjour ! Assistante de '+n+' 👋 Je comprends TOUT : bonsoir docteur, c combien, vous etes ou, jai mal... Posez votre question !',chips:['Prendre RDV','Tarifs','Adresse','Urgence'],price:'💰 Consultation 15.000F, Détartrage 25.000F, Blanchiment 45.000F. Devis précis après 1ère consult. Réserver ?',hours:'🕘 Lun-Sam 8h-18h. Quel créneau ?',where:'📍 Cocody Rue des Jardins, Abidjan. Lien Maps sur demande.',urgent:'🚨 Désolé pour la douleur. Votre prénom svp ? On vous rappelle en priorité.',askName:'Votre prénom ?',askPhone:n=>'Merci '+n+'. Numéro WhatsApp ?',badPhone:'Numéro court. Ex: +225 07 05 83 48 50',askTime:'Quand vous appeler ?',timeChips:['Aujourd’hui','Demain','Matin','14h30'],done:(n,t,c)=>'✅ Merci '+n+', RDV '+t+' enregistré. '+c+' confirme par WhatsApp.',cardT:'Fiche patient reçue',f:['Nom','Tel','Heure','Motif','Date'],reasonB:'RDV',reasonU:'Urgence',wa:'WhatsApp',fb:'Choisissez ci-dessous :'}};
-const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');const R={urgent:/\b(urgen|douleur|mal|rage|abces|gonfl|saign|pain|emergency)\b/,book:/\b(rdv|rendez|reserv|prendre|book|appointment|dispo|creneau)\b/,price:/\b(prix|tarif|cout|combien|devis|blanchiment|detartrage|facette)\b/,hours:/\b(horaire|heure|ouvert|ferme|hours)\b/,where:/\b(adresse|ou etes|situe|address|where|location)\b/,hi:/\b(bonjour|bonsoir|salut|cc|hello|hi|hey|bonsoir docteur)\b/};
-const $=id=>document.getElementById(id),log=$('log');let st={step:null,name:'',phone:'',urgent:false};const L=()=>T.fr,name=C.clinic+' - '+C.city;
-function add(t,cls){const d=document.createElement('div');d.className='m '+cls;d.textContent=t;log.appendChild(d);log.scrollTop=9999;return d}
-function chips(a){const d=document.createElement('div');d.className='chips';a.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x;b.onclick=()=>handle(x);d.appendChild(b)});log.appendChild(d);log.scrollTop=9999}
-function bot(t,c){setTimeout(()=>{add(t,'b');if(c)chips(c)},350)}
-function handle(raw){const t=raw.trim();if(!t)return;add(t,'u');let n=norm(t);if(st.step==='name'){st.name=t;st.step='phone';bot(L().askPhone(st.name));return}if(st.step==='phone'){if(t.replace(/\D/g,'').length<8){bot(L().badPhone);return}st.phone=t;st.step='time';bot(L().askTime, L().timeChips);return}if(st.step==='time'){const l=L(),now=new Date().toLocaleString(),reason=st.urgent?l.reasonU:l.reasonB;const v=[st.name||'Patient',st.phone,t,reason,now];add(l.cardT+'\n'+l.f.map((k,i)=>k+' : '+v[i]).join('\n'),'card');if(C.wa){const a=document.createElement('a');a.className='wa';a.textContent=l.wa;a.target='_blank';a.href='https://wa.me/'+C.wa+'?text='+encodeURIComponent(C.clinic+' - '+reason+' - '+st.name+' - '+t);log.appendChild(a);}bot(l.done(st.name||'Patient',t,C.clinic), L().chips);st={step:null,name:'',phone:'',urgent:false};return}if(R.urgent.test(n)){st.urgent=true;st.step='name';bot(L().urgent+' '+L().askName);return}if(R.book.test(n)){st.urgent=false;st.step='name';bot(L().askName);return}if(R.price.test(n)){bot(L().price, L().chips);return}if(R.hours.test(n)){bot(L().hours, L().timeChips);return}if(R.where.test(n)){bot(L().where, L().chips);return}if(R.hi.test(n)){bot(L().hi(C.clinic), L().chips);return}if(n.match(/\d+h/)||n.includes('matin')||n.includes('demain')){st.step='name';bot(L().askName);return}bot(L().fb, L().chips);}
-$('f').onsubmit=e=>{e.preventDefault();const v=$('in').value;$('in').value='';handle(v)};$('fab').onclick=()=>{$('box').classList.toggle('on');if(!log.children.length)bot(L().hi(C.clinic), L().chips)};$('x').onclick=()=>$('box').classList.remove('on');
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clinique IA Universelle - Démo Dentiste</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f8fc;color:#132e3f}
+header{background:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #e6eef4;position:sticky;top:0;z-index:10}
+header .plus{width:28px;height:28px;background:#eef6ff;border-radius:8px;display:grid;place-items:center;color:#0a7ea4;font-weight:900}
+header b{font-size:14px}
+.hero{background:radial-gradient(120% 120% at 50% 0%,#1a3a8a 0%,#0a2350 60%,#061536 100%);color:#fff;text-align:center;padding:72px 20px 90px}
+.hero .kicker{font-size:10px;letter-spacing:.2em;opacity:.7;font-weight:800;margin-bottom:16px}
+.hero h1{font-size:clamp(26px,4.5vw,42px);line-height:1.15;max-width:16ch;margin:0 auto 16px;font-weight:800}
+.hero p{opacity:.85;max-width:58ch;margin:0 auto;font-size:15px;line-height:1.5}
+.cards{max-width:980px;margin:-52px auto 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;padding:0 16px}
+.card{background:#fff;border-radius:14px;padding:18px 18px 16px;box-shadow:0 12px 32px rgba(0,20,60,.12);border:1px solid #eaf0f6;text-align:left}
+.card .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;margin-bottom:10px}
+.card h3{font-size:14px;margin-bottom:6px}
+.card p{font-size:12.5px;color:#5a7384;line-height:1.5}
+#fab{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:#0a7ea4;border:0;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #0004;z-index:9999}
+#box{position:fixed;right:16px;bottom:92px;width:min(400px,calc(100vw - 20px));height:min(600px,calc(100vh - 110px));background:#fff;border-radius:16px;box-shadow:0 18px 50px #0005;display:none;flex-direction:column;overflow:hidden;z-index:9999}
+#box.on{display:flex}
+#top{background:#0a7ea4;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+#top small{display:block;opacity:.85;font-weight:400;font-size:11px}
+#top button{background:rgba(255,255,255,.2);border:0;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}
+#log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f6f9fb}
+.m{max-width:84%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-line}
+.b{background:#fff;border:1px solid #dfeaf0;align-self:flex-start;border-bottom-left-radius:4px}
+.u{background:#0a7ea4;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.card-msg{background:#fff9e0;border:1px dashed #c9a100;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid #0a7ea4;background:#fff;color:#0a7ea4;border-radius:99px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.chips button:hover{background:#0a7ea4;color:#fff}
+.wa{background:#1faa59;color:#fff;text-decoration:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;display:inline-block}
+form{display:flex;gap:8px;padding:10px;border-top:1px solid #e2ecf1;background:#fff}
+input{flex:1;border:1px solid #c6dbe4;border-radius:99px;padding:11px 14px;font-size:14px;outline:none}
+form button{border:0;background:#0a7ea4;color:#fff;width:42px;height:42px;border-radius:50%;cursor:pointer}
+</style></head><body>
+<header><div class="plus">+</div><b id="brand">Clinique IA Universelle</b></header>
+<section class="hero">
+<div class="kicker">ACCUEIL MÉDICAL INTELLIGENT</div>
+<h1 id="h1">Un accueil médical plus simple, partout dans le monde.</h1>
+<p id="sub">Un assistant multilingue pour répondre aux questions pratiques et aider les patients à contacter leur clinique. Démo spécialisée dentaire.</p>
+</section>
+<div class="cards">
+<div class="card"><div class="ic" style="background:#e7f3ff">🌍</div><h3>Pensé pour l'international</h3><p>Plusieurs langues et des informations configurables selon chaque établissement. ?clinic=Nom&city=Ville&lang=fr</p></div>
+<div class="card"><div class="ic" style="background:#eafaf0">💬</div><h3>Conversation naturelle</h3><p>Posez une question avec vos propres mots, même si votre message contient des fautes. L'assistante comprend : bonsoir, prix, urgence...</p></div>
+<div class="card"><div class="ic" style="background:#fff1f1">🛡️</div><h3>Des limites responsables</h3><p>L'assistant donne des informations générales et ne remplace pas un professionnel de santé. Il transmet la demande au secrétariat.</p></div>
+</div>
+<button id="fab">💬</button>
+<div id="box"><div id="top"><div><b id="ttl">Secrétariat Dentaire</b><small id="ttl2">Réponse instantanée • 24h/24</small></div><button id="x">✕</button></div><div id="log"></div><form id="f"><input id="in" placeholder="Ex: Bonjour, j'ai mal à une dent..."><button>➤</button></form></div>
+<script>
+const q=new URLSearchParams(location.search);
+let lang=(q.get('lang')||'fr').slice(0,2); if(!['fr','en'].includes(lang))lang='fr';
+const C={clinic:q.get('clinic')||'Clinique Sourire+ Cocody',city:q.get('city')||'Abidjan',wa:(q.get('wa')||'2250705834850').replace(/\D/g,'')};
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const $=id=>document.getElementById(id),log=$('log');
+let st={step:null,name:'',phone:'',motif:'Consultation dentaire'};
+const T={
+fr:{brand:'Clinique IA Universelle',h1:'Un accueil médical plus simple, partout dans le monde.',sub:'Un assistant multilingue pour répondre aux questions pratiques et aider les patients à contacter leur clinique. Démo spécialisée dentaire.',
+ttl:'Secrétariat Dentaire',ttl2:'Dr & Équipe • Abidjan • 24h/24',
+hi:`Bonjour et bienvenue au <b>${C.clinic}</b> 🦷<br><br>Je suis l'assistante virtuelle du cabinet dentaire.<br><br>Je peux vous renseigner sur les soins (carie, détartrage, blanchiment, facette, implant), les tarifs indicatifs, et transmettre votre demande de RDV au secrétariat.<br><br><small>Je ne fais pas de diagnostic, seul le Dr vous examinera au fauteuil.</small>`,
+chips:['Prendre RDV','Urgence dentaire','Tarifs des soins','Adresse & Horaires']},
+en:{brand:'Universal Medical AI',h1:'Simpler medical reception, worldwide.',sub:'Multilingual assistant for practical questions and patient contact. Dental demo.',
+ttl:'Dental Secretariat',ttl2:'Dr & Team • 24/7',
+hi:`Hello and welcome to <b>${C.clinic}</b> 🦷<br><br>I'm the virtual assistant. I can explain treatments, give price ranges, and forward your appointment request.<br><br><small>I don't provide medical diagnosis.</small>`,
+chips:['Book appointment','Dental emergency','Prices','Address & Hours']}
+};
+function ui(){const L=T[lang];$('brand').textContent=L.brand;$('h1').textContent=L.h1;$('sub').textContent=L.sub;$('ttl').textContent=L.ttl;$('ttl2').textContent=L.ttl2;document.documentElement.lang=lang}
+function add(t,cls){const d=document.createElement('div');d.className='m '+cls;d.innerHTML=t;log.appendChild(d);log.scrollTop=9999;return d}
+function chipsArr(a){const d=document.createElement('div');d.className='chips';a.forEach(x=>{const b=document.createElement('button');b.textContent=x;b.onclick=()=>handle(x);d.appendChild(b)});log.appendChild(d);log.scrollTop=9999}
+function bot(t,c){setTimeout(()=>{add(t,'b');if(c)chipsArr(c)},300)}
+function handle(raw){
+ const t=raw.trim(); if(!t)return; add(t,'u'); let n=norm(t);
+ if(st.step==='name'){st.name=t;st.step='phone';bot(`Merci <b>${t}</b>.<br>Votre numéro WhatsApp pour que le secrétariat vous rappelle ?<br><small>Ex: +225 07 05 83 48 50</small>`);return}
+ if(st.step==='phone'){if(t.replace(/\D/g,'').length<8){bot(`Numéro incomplet. Exemple : <b>+225 07 05 83 48 50</b>`);return}st.phone=t;st.step='time';bot(`Parfait. Quelle disponibilité pour <b>${st.motif}</b> ?`,['Aujourd’hui matin','Demain 10h','Demain 14h30','Flexible cette semaine']);return}
+ if(st.step==='time'){
+   const now=new Date().toLocaleString(lang==='fr'?'fr-FR':'en-US');
+   const fiche=`<b>FICHE PATIENT - ${C.clinic}</b><br>👤 ${st.name}<br>📞 ${st.phone}<br>🦷 ${st.motif}<br>⏰ ${t}<br>🕒 ${now}<br><br><small>À traiter par secrétariat</small>`;
+   add(fiche,'card-msg'); const a=document.createElement('a');a.className='wa';a.target='_blank';a.textContent='Transmettre sur WhatsApp';
+   a.href='https://wa.me/'+C.wa+'?text='+encodeURIComponent(`${C.clinic} - ${st.motif} - ${st.name} - ${st.phone} - ${t}`);log.appendChild(a);
+   bot(`✅ <b>Merci ${st.name}, demande transmise.</b><br>Votre demande de <b>${st.motif.toLowerCase()}</b> pour <b>${t}</b> est enregistrée.<br>Le secrétariat confirmera l'heure exacte.<br><br>📍 ${C.clinic} - ${C.city}<br>🕘 Lun-Sam 8h-18h`,['Merci','Itinéraire']); st={step:null,name:'',phone:'',motif:'Consultation'}; return;
+ }
+ if(/annul|cancel/.test(n)){st={step:null,name:'',phone:''};bot(`D’accord, j’annule.`,T[lang].chips);return}
+ if(/\b(bonjour|bonsoir|salut|slt|cc|hello|hi|bonsoir docteur)\b/.test(n) && t.length<30){
+   bot(T[lang].hi,T[lang].chips);return}
+ if(/prix|tarif|combien|devis|blanchiment|facette|detartrage|implant|carie|couronne|orthodontie|appareil/.test(n)){
+   let soin='Consultation'; if(/blanchiment/.test(n))soin='Blanchiment'; if(/detartrage/.test(n))soin='Détartrage'; if(/facette/.test(n))soin='Facette céramique'; if(/implant/.test(n))soin='Implant'; if(/carie/.test(n))soin='Soin de carie'; if(/couronne|devital/.test(n))soin='Couronne / Dévitalisation'; if(/ortho|appareil|align/.test(n))soin='Orthodontie';
+   st.motif=soin;
+   bot(`🦷 <b>${soin} - Cabinet ${C.city}</b><br><br><b>Tarifs indicatifs :</b><br>• Consultation + Radio : 15.000 F / 75€<br>• Détartrage + Polissage : 25.000 F / 90€<br>• Carie composite : 30.000-50.000 F<br>• Blanchiment fauteuil : 45.000-80.000 F<br>• Facette : dès 150.000 F<br>• Couronne céramique : dès 180.000 F<br>• Implant : sur devis après CBCT<br><br><small>Devis définitif par le Dr après examen clinique. Prise en charge mutuelle selon contrat.</small><br><br>Je transmets une demande de RDV pour <b>${soin.toLowerCase()}</b> ?`,['Oui, RDV pour '+soin,'Adresse','Autre soin']);return}
+ if(/adresse|ou etes|situe|localis|itineraire|maps|horaire|ouvert|ferme/.test(n)){
+   bot(`📍 <b>${C.clinic} - ${C.city}</b><br>Cocody Rue des Jardins, Abidjan (exemple configurable)<br><br>🕘 Lun-Ven 8h-18h, Sam 8h-14h<br>Dimanche : urgences téléphoniques<br><br>Le paramètre ?city= et ?clinic= change automatiquement l'adresse.`,['Prendre RDV','Tarifs','Appeler']);return}
+ if(/urgen|douleur|rage|abces|gonfl|saign|mal aux dents|tres mal|insupportable|j.*mal/.test(n)){
+   st.motif='Urgence dentaire - '+t.slice(0,60); st.step='name'; bot(`🚨 <b>Douleur dentaire : prise en charge prioritaire.</b><br><br>Conseils en attendant :<br>• Eau tiède salée, pas d'automédication anti-inflammatoire sans avis<br>• Évitez chaud/froid sur la dent<br>• Le secrétariat vous rappelle en priorité<br><br>Votre prénom pour fiche prioritaire ?`);return}
+ if(/rdv|rendez|reserv|dispo|creneau|book|appointment|consultation/.test(n)){
+   st.motif='Consultation'; st.step='name'; bot(`📅 Je prends votre demande de RDV.<br>Motif et prénom svp ?<br><small>Ex: détartrage, contrôle, douleur...</small>`);return}
+ if(n.match(/\d+h/)||n.includes('demain')||n.includes('aujour')||n.includes('matin')){st.motif='Consultation - '+t; st.step='name'; bot(`Créneau <b>${t}</b> noté.<br>Votre prénom ?`);return}
+ bot(`Merci pour : "<b>${t}</b>".<br>Je vous oriente :`,T[lang].chips);
+}
+$('f').onsubmit=e=>{e.preventDefault();const v=$('in').value;$('in').value='';handle(v)};
+$('fab').onclick=()=>{$('box').classList.toggle('on'); if(!log.children.length){bot(T[lang].hi,T[lang].chips)}};
+$('x').onclick=()=>$('box').classList.remove('on'); ui();
 </script></body></html>
