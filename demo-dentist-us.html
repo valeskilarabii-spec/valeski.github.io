@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,7 +128,7 @@ function carrierIn(p){for(const k in CARRIERS){if(has(p,[k]))return CARRIERS[k];
 
 /* ---------- intents ---------- */
 const SEVERE=["cant breathe","trouble breathing","difficulty breathing","trouble swallowing","difficulty swallowing","heavy bleeding","wont stop bleeding","face swollen","swollen face","swelling in my face","knocked out"];
-const URGENT=["toothache","pain","hurts","hurt","broke","broken","chipped","cracked","emergency","urgent","swollen","swelling","abscess","bleeding","infection","lost filling","fell out"];
+const URGENT=["toothache","pain","hurts","hurt","broke","broken","chipped","cracked","emergency","urgent","swollen","swelling","abscess","bleeding","infection","lost filling","fell out","able to sleep","cant sleep","keeps me up","kept me up","throbbing","unbearable","severe pain","fever"];
 const INS=["insurance","insured","coverage","covered","ppo","hmo","accept","take my plan","in network"];
 const FEESW=["price","prices","cost","costs","fee","fees","how much","expensive","afford","cash","payment","pay"];
 const HOURSW=["hours","open","opening","closing","closed","what time","weekend","saturday","sunday","late"];
@@ -248,7 +249,7 @@ function handle(text,fromChip){
 }
 
 function finish(){
-  const payload={clinic:cfg.clinic,city:cfg.city,priority:st.urgent?"URGENT":"Normal",name:st.name,phone:st.phone,preferred_time:st.when,reasons:st.reasons,insurer_mentioned:st.carrier,for_child:st.child,received_at:new Date().toISOString()};
+  const payload={clinic:cfg.clinic,city:cfg.city,priority:st.urgent?"URGENT":(st.reasons.includes("Dental concern")?"To review soon":"Normal"),name:st.name,phone:st.phone,preferred_time:st.when,reasons:st.reasons,insurer_mentioned:st.carrier,for_child:st.child,received_at:new Date().toISOString()};
   if(FORWARD_URL){ fetch(FORWARD_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{}); }
   add(st.urgent
     ? "Thank you, "+st.name+". Your request is marked priority and the front desk will call you as soon as possible."
