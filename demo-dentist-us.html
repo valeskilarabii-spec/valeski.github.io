@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,7 @@
   .card{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--line)}
   .card h2{font-size:1rem;margin:0 0 8px}
   .card p{margin:0;color:var(--muted);font-size:.93rem}
-  .card code{word-break:break-all;background:#eef2f9;padding:1px 5px;border-radius:4px;font-size:.85em}
+  .card code{display:inline-block;max-width:100%;overflow-wrap:anywhere;word-break:break-all;background:#eef2f9;padding:1px 5px;border-radius:4px;font-size:.85em}
   .price{max-width:1000px;margin:28px auto 0;padding:0 24px}
   .price div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
   .price b{font-size:1.15rem}
@@ -188,6 +189,7 @@ function answer(text){
     askName=true;
   }
   if(has(p,BOOKW)){ addReason("Appointment request"); out.push("Happy to pass an appointment request to the front desk."); askName=true; }
+  if(has(p,["problem","issue","concern"])&&!urgent&&!p.nf.includes(" no problem ")){ addReason("Dental concern"); out.push("I can't assess a dental problem here, so I'll pass it to the front desk. If it involves severe pain, swelling or bleeding, tell me and I'll mark it priority."); askName=true; }
   if(has(p,HUMANW)){ addReason("Asked to speak with staff"); out.push("I'll ask the front desk to contact you."); askName=true; }
 
   if(!out.length){
@@ -206,19 +208,27 @@ function handle(text,fromChip){
 
   if(st.mode==="chat"){
     if(fromChip){ text = ({"Book appointment":"I want to book an appointment","Dental emergency":"dental emergency","Address & hours":"address and hours","Insurance":"insurance question"})[text]||text; }
+    const ph=text.match(/(\+?\d[\d\s().-]{8,}\d)/); if(ph) st.phone=ph[1].trim();
+    const nm=text.match(/(?:my name is|my name|i am|i'm|im|this is)\s+([A-Za-z'-]+)/i);
+    if(nm){const f=nm[1];st.name=f.charAt(0).toUpperCase()+f.slice(1).toLowerCase();}
     const r=answer(text);
-    setTimeout(()=>{ if(r.warn) {} },0);
     const ty=add("Typing...","bot typing");
     setTimeout(()=>{
       ty.remove(); add(r.text,"bot"+(r.warn?" warn":""));
-      if(r.askName){ st.mode="name"; add("To pass this to the front desk, what's your first name? (Please don't include medical details here.)","bot"); }
+      if(r.askName){
+        if(st.name&&st.phone){ st.mode="when"; add("Thanks, "+st.name+". When is best to call you or to see the dentist? (for example: tomorrow morning)","bot"); }
+        else if(st.name){ st.mode="phone"; add("Thanks, "+st.name+". What's the best phone number to reach you?","bot"); }
+        else { st.mode="name"; add("To pass this to the front desk, what's your first name? (Please don't include medical details here.)","bot"); }
+      }
       else if(r.chips){ chips(MAIN_CHIPS); }
     },450);
     return;
   }
   if(has(prep(text),NOW)){ st.mode="chat"; reply("No problem, nothing was sent. What else can I help with?"); setTimeout(()=>chips(MAIN_CHIPS),500); return; }
   if(st.mode==="name"){
-    st.name=text.replace(/[^A-Za-z' -]/g,"").trim().split(/\s+/)[0]||text.slice(0,20);
+    const cleaned=text.replace(/^(my name is|my name|name is|i am|i'm|im|it's|its|this is|call me)\s+/i,"").replace(/[^A-Za-z' -]/g,"").trim();
+    const first=cleaned.split(/\s+/)[0]||"there";
+    st.name=first.charAt(0).toUpperCase()+first.slice(1).toLowerCase();
     st.mode="phone"; reply("Thanks, "+st.name+". What's the best phone number to reach you?"); return;
   }
   if(st.mode==="phone"){
@@ -244,7 +254,7 @@ function finish(){
   [["Priority",payload.priority],["Name",payload.name],["Phone",payload.phone],["Preferred time",payload.preferred_time],["Reason",payload.reasons.join(", ")||"General"]].forEach(([k,v])=>{
     const a=document.createElement("dt");a.textContent=k;const b=document.createElement("dd");b.textContent=v;if(k==="Priority"&&v==="URGENT")b.className="pri";dl.appendChild(a);dl.appendChild(b);});
   t.appendChild(dl);log.appendChild(t);log.scrollTop=log.scrollHeight;
-  st.reasons=[];st.urgent=false;st.carrier=null;st.child=false;
+  st.reasons=[];st.urgent=false;st.carrier=null;st.child=false;st.name="";st.phone="";st.when="";
   setTimeout(()=>chips(MAIN_CHIPS),500);
 }
 
