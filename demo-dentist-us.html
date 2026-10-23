@@ -1,426 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Universal Medical AI - Dental Demo</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: #f5f8fc;
-      color: #132e3f;
-    }
-    header {
-      background: #fff;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #e6eef4;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    header .plus {
-      width: 28px;
-      height: 28px;
-      background: #eef6ff;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      color: #0a7ea4;
-      font-weight: 900;
-    }
-    header b { font-size: 14px; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dental front desk assistant - demo</title>
+<style>
+  :root{
+    --navy:#0f2a5c; --navy-d:#0a1d42; --teal:#0b8a9e; --teal-d:#087282;
+    --ink:#14213d; --muted:#5b6780; --line:#dfe5ef; --bg:#f6f8fc; --white:#fff;
+    --alert:#b3261e; --alert-bg:#fdecea;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  header{background:var(--white);border-bottom:1px solid var(--line);padding:14px 24px;font-weight:700}
+  .hero{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-d) 100%);color:#fff;padding:72px 24px 120px;text-align:center}
+  .hero h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:0 auto 18px;max-width:16ch}
+  .hero p{max-width:60ch;margin:0 auto;color:#cdd8ee;font-size:1.05rem}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1000px;margin:-70px auto 0;padding:0 24px}
+  .card{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--line)}
+  .card h2{font-size:1rem;margin:0 0 8px}
+  .card p{margin:0;color:var(--muted);font-size:.93rem}
+  .card code{background:#eef2f9;padding:1px 5px;border-radius:4px;font-size:.85em}
+  .price{max-width:1000px;margin:28px auto 0;padding:0 24px}
+  .price div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+  .price b{font-size:1.15rem}
+  .price span{color:var(--muted);font-size:.93rem}
+  footer{max-width:1000px;margin:28px auto 140px;padding:0 24px;color:var(--muted);font-size:.85rem}
 
-    .hero {
-      background: radial-gradient(120% 120% at 50% 0%, #1a3a8a 0%, #0a2350 60%, #061536 100%);
-      color: #fff;
-      text-align: center;
-      padding: 72px 20px 90px;
-    }
-    .hero .kicker {
-      font-size: 12px;
-      letter-spacing: .2em;
-      opacity: .7;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-    .hero h1 {
-      font-size: clamp(26px, 4.5vw, 42px);
-      line-height: 1.15;
-      max-width: 16ch;
-      margin: 0 auto 16px;
-      font-weight: 800;
-    }
-    .hero p {
-      opacity: .85;
-      max-width: 58ch;
-      margin: 0 auto;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .cards {
-      max-width: 980px;
-      margin: -52px auto 40px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-      padding: 0 16px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 12px 32px rgba(0,20,60,.12);
-      border: 1px solid #eaf0f6;
-    }
-    .card .ic {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-    .card h3 { font-size: 14px; margin-bottom: 6px; }
-    .card p { font-size: 12.5px; color: #5a7384; line-height: 1.5; }
-
-    /* CHAT WIDGET */
-    #fab {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #0a7ea4;
-      border: 0;
-      color: #fff;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 8px 24px #0004;
-      z-index: 9999;
-    }
-    #box {
-      position: fixed;
-      right: 16px;
-      bottom: 92px;
-      width: min(400px, calc(100vw - 20px));
-      height: min(600px, calc(100vh - 110px));
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 18px 50px #0005;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 9999;
-    }
-    #box.on { display: flex; }
-    #top {
-      background: #0a7ea4;
-      color: #fff;
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #top small { display: block; opacity: .85; font-weight: 400; font-size: 11px; }
-    #top button {
-      background: rgba(255,255,255,.2);
-      border: 0;
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-    #log {
-      flex: 1;
-      overflow: auto;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: #f6f9fb;
-    }
-    .m {
-      max-width: 84%;
-      padding: 10px 13px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-line;
-    }
-    .b { background: #fff; border: 1px solid #dfeaf0; align-self: flex-start; border-bottom-left-radius: 4px; }
-    .u { background: #0a7ea4; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .card-msg { background: #fff9e0; border: 1px dashed #c9a100; font-size: 12px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .chips button {
-      border: 1px solid #0a7ea4;
-      background: #fff;
-      color: #0a7ea4;
-      border-radius: 99px;
-      padding: 6px 11px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .chips button:hover { background: #0a7ea4; color: #fff; }
-    .act {
-      background: #1faa59;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 99px;
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      display: inline-block;
-      margin: 4px;
-    }
-    form {
-      display: flex;
-      gap: 8px;
-      padding: 10px;
-      border-top: 1px solid #e2ecf1;
-      background: #fff;
-    }
-    input {
-      flex: 1;
-      border: 1px solid #c6dbe4;
-      border-radius: 99px;
-      padding: 11px 14px;
-      font-size: 14px;
-      outline: none;
-    }
-    form button {
-      border: 0;
-      background: #0a7ea4;
-      color: #fff;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-  </style>
+  /* chat */
+  #fab{position:fixed;right:24px;bottom:24px;width:60px;height:60px;border-radius:50%;border:0;background:var(--teal);color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:26px}
+  #fab:focus-visible,#send:focus-visible,#x:focus-visible,.qr button:focus-visible,#inp:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+  #panel{position:fixed;right:24px;bottom:96px;width:min(400px,calc(100vw - 32px));height:min(620px,calc(100vh - 120px));background:var(--white);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);display:none;flex-direction:column;overflow:hidden}
+  #panel.open{display:flex}
+  .ph{background:var(--teal);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .ph b{display:block}
+  .ph small{opacity:.9}
+  #x{background:rgba(255,255,255,.2);color:#fff;border:0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px}
+  #log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fbfcfe}
+  .m{max-width:88%;padding:10px 13px;border-radius:12px;font-size:.92rem;white-space:pre-wrap;word-wrap:break-word}
+  .bot{background:var(--white);border:1px solid var(--line);align-self:flex-start}
+  .me{background:var(--teal);color:#fff;align-self:flex-end}
+  .warn{background:var(--alert-bg);border-color:#f2b8b5;color:#601410}
+  .note{font-size:.78rem;color:var(--muted);align-self:center;text-align:center;max-width:92%}
+  .qr{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start}
+  .qr button{border:1px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:20px;padding:6px 12px;font-size:.84rem;cursor:pointer}
+  .qr button:hover{background:#e8f6f8}
+  .typing{color:var(--muted);font-style:italic;font-size:.85rem}
+  .ticket{border:1px dashed var(--teal);background:#f1fafb;border-radius:10px;padding:12px;font-size:.84rem;align-self:stretch}
+  .ticket h3{margin:0 0 6px;font-size:.84rem;color:var(--teal-d)}
+  .ticket dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+  .ticket dt{color:var(--muted)}
+  .ticket dd{margin:0;font-weight:600}
+  .ticket .pri{color:var(--alert)}
+  form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+  #inp{flex:1;border:1px solid var(--line);border-radius:22px;padding:10px 14px;font-size:.92rem}
+  #send{width:42px;height:42px;border-radius:50%;border:0;background:var(--teal);color:#fff;cursor:pointer;font-size:16px}
+  @media (prefers-reduced-motion:no-preference){ .m,.ticket{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
+</style>
 </head>
 <body>
+<header id="brand">Dental front desk assistant</header>
 
-  <header>
-    <div class="plus">+</div>
-    <b id="brand">Universal Medical AI</b>
-  </header>
+<section class="hero">
+  <h1>A simpler dental front desk, anywhere in the world.</h1>
+  <p>Answers the questions patients ask most (insurance, fees, hours, urgent visits), even several in one message, and passes every request to your team with the details they need.</p>
+</section>
 
-  <section class="hero">
-    <div class="kicker">SMART MEDICAL FRONT DESK</div>
-    <h1 id="h1">A simpler medical front desk, anywhere in the world.</h1>
-    <p id="sub">An AI assistant that answers practical patient questions and forwards appointment requests to your front desk. Dental demo.</p>
-  </section>
+<div class="cards">
+  <div class="card"><h2>Set up for your practice</h2><p>Clinic name, city, address, hours and accepted plans come from the link: <code>?clinic=Smile+Dental&amp;city=Austin&amp;ins=Delta+Dental,Cigna</code></p></div>
+  <div class="card"><h2>Understands more than one question</h2><p>"My son broke a tooth, do you take Delta Dental?" gets an answer to both, then a request to your team.</p></div>
+  <div class="card"><h2>Clear limits</h2><p>No diagnosis, no treatment advice. It never confirms a plan or a price you did not set. It asks for a name and phone number only, not medical details.</p></div>
+</div>
 
-  <div class="cards">
-    <div class="card">
-      <div class="ic" style="background:#e7f3ff">🌍</div>
-      <h3>Built for your practice</h3>
-      <p>Custom practice name, city, hours and prices via URL: ?clinic=Smile+Dental&city=Austin</p>
-    </div>
-    <div class="card">
-      <div class="ic" style="background:#eafaf0">💬</div>
-      <h3>Natural conversation</h3>
-      <p>Patients ask in their own words, typos included. The assistant understands: hi, prices, toothache, insurance...</p>
-    </div>
-    <div class="card">
-      <div class="ic" style="background:#fff1f1">🛡️</div>
-      <h3>Responsible limits</h3>
-      <p>The assistant gives general information only and never replaces a healthcare professional. Every request is forwarded to your team.</p>
-    </div>
-  </div>
+<div class="price"><div>
+  <b>$197 / month</b><span>or $497 setup + $97 / month. No contract.</span>
+</div></div>
 
-  <button id="fab">💬</button>
+<footer>Demo. In this demo, requests are not sent anywhere: the card shown at the end of the chat is what your front desk would receive.</footer>
 
-  <div id="box">
-    <div id="top">
-      <div>
-        <b id="ttl">Dental Front Desk</b>
-        <small id="ttl2">Instant answers • 24/7</small>
-      </div>
-      <button id="x">✕</button>
-    </div>
-    <div id="log"></div>
-    <form id="f">
-      <input id="in" placeholder="Ex: Hi, I have a toothache...">
-      <button>➤</button>
-    </form>
-  </div>
+<button id="fab" aria-label="Open chat">&#128172;</button>
+<section id="panel" aria-label="Chat with the front desk assistant">
+  <div class="ph"><div><b id="ptitle">Front desk</b><small id="psub"></small></div><button id="x" aria-label="Close chat">&#10005;</button></div>
+  <div id="log" aria-live="polite"></div>
+  <form id="f" autocomplete="off">
+    <input id="inp" type="text" placeholder="Type your question..." aria-label="Your message">
+    <button id="send" aria-label="Send">&#10148;</button>
+  </form>
+</section>
 
 <script>
+/* ---------- CONFIG ---------- */
+const FORWARD_URL = ""; // optional: Make/Zapier/Formspree webhook. Empty = demo mode (shows the card only).
 const q = new URLSearchParams(location.search);
-const C = {
-  clinic: q.get('clinic') || 'Smile Dental Studio',
-  city: q.get('city') || 'Austin',
-  tel: (q.get('tel') || '15125550123').replace(/\D/g,''),
-  mail: q.get('mail') || 'frontdesk@smiledental.com',
-  addr: q.get('addr') || '123 Main St, Suite 200'
+const cfg = {
+  clinic: q.get("clinic") || "Smile Dental Studio",
+  city:   q.get("city")   || "Austin",
+  addr:   q.get("addr")   || "123 Main Street (sample address)",
+  hours:  q.get("hours")  || "Mon-Fri 8am-5pm, Sat 9am-1pm (sample hours)",
+  ins:    (q.get("ins")||"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean)
 };
+const FEES = [
+  ["Exam and cleaning","$90 - $150"],
+  ["Filling","$120 - $300"],
+  ["Whitening","$300 - $600"]
+]; // sample ranges: each clinic sets its own
 
-const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const $ = id => document.getElementById(id);
-const log = $('log');
+document.title = cfg.clinic + " - front desk assistant";
+document.getElementById("brand").textContent = cfg.clinic + " - front desk assistant";
+document.getElementById("ptitle").textContent = cfg.clinic;
+document.getElementById("psub").textContent = cfg.city + " - virtual front desk";
 
-let st = { step: null, name: '', phone: '', motif: 'Consultation' };
-
-const T = {
-  brand: 'Universal Medical AI',
-  h1: 'A simpler medical front desk, anywhere in the world.',
-  sub: 'An AI assistant that answers practical patient questions and forwards appointment requests to your front desk. Dental demo.',
-  ttl: 'Dental Front Desk',
-  ttl2: 'Dr & Team • 24/7',
-  hi: `Hello and welcome to <b>${esc(C.clinic)}</b> 🦷<br><br>I'm the virtual front desk assistant.<br><br>I can help with treatments (filling, cleaning, whitening, veneers, implants), estimated fees, insurance questions, and I'll forward your appointment request to the front desk.<br><br><small>I don't provide diagnosis. Only the doctor can do that in the chair.</small>`,
-  chips: ['Book appointment','Dental emergency','Fees','Address & Hours']
-};
-
-function ui() {
-  $('brand').textContent = T.brand;
-  $('h1').textContent = T.h1;
-  $('sub').textContent = T.sub;
-  $('ttl').textContent = T.ttl;
-  $('ttl2').textContent = `Dr & Team • ${esc(C.city)} • 24/7`;
-}
-
-function add(t, cls) {
-  const d = document.createElement('div');
-  d.className = 'm ' + cls;
-  d.innerHTML = t;
-  log.appendChild(d);
-  log.scrollTop = 9999;
-  return d;
-}
-function addU(t) {
-  const d = document.createElement('div');
-  d.className = 'm u';
-  d.textContent = t;
-  log.appendChild(d);
-  log.scrollTop = 9999;
-}
-function chipsArr(a) {
-  const d = document.createElement('div');
-  d.className = 'chips';
-  a.forEach(x => {
-    const b = document.createElement('button');
-    b.textContent = x;
-    b.onclick = () => handle(x);
-    d.appendChild(b);
+/* ---------- helpers ---------- */
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++)m[i]=[i];for(let j=0;j<=b.length;j++)m[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return m[a.length][b.length];}
+function prep(t){const n=t.toLowerCase().replace(/'/g,"").replace(/[^a-z0-9 ]/g," ");const tk=n.split(/\s+/).filter(Boolean);return {tk,nf:" "+tk.join(" ")+" "};}
+function has(p,list){
+  return list.some(w=>{
+    if(w.includes(" ")) return p.nf.includes(" "+w+" ");
+    return p.tk.some(t=>t===w || (w.length>=5 && (t.startsWith(w) || lev(t,w)<=1)));
   });
-  log.appendChild(d);
-  log.scrollTop = 9999;
 }
-function bot(t, c) {
-  setTimeout(() => { add(t, 'b'); if (c) chipsArr(c); }, 300);
-}
+const CARRIERS={delta:"Delta Dental",cigna:"Cigna",aetna:"Aetna",metlife:"MetLife",humana:"Humana",guardian:"Guardian",anthem:"Anthem",ameritas:"Ameritas",medicaid:"Medicaid",medicare:"Medicare",bcbs:"Blue Cross",principal:"Principal"};
+function carrierIn(p){for(const k in CARRIERS){if(has(p,[k]))return CARRIERS[k];}return null;}
 
-function handle(raw) {
-  const t = raw.trim();
-  if (!t) return;
-  addU(t);
-  let n = norm(t);
+/* ---------- intents ---------- */
+const SEVERE=["cant breathe","trouble breathing","difficulty breathing","trouble swallowing","difficulty swallowing","heavy bleeding","wont stop bleeding","face swollen","swollen face","swelling in my face","knocked out"];
+const URGENT=["toothache","pain","hurts","hurt","broke","broken","chipped","cracked","emergency","urgent","swollen","swelling","abscess","bleeding","infection","lost filling","fell out"];
+const INS=["insurance","insured","coverage","covered","ppo","hmo","accept","take my plan","in network"];
+const FEESW=["price","prices","cost","costs","fee","fees","how much","expensive","afford","cash","payment","pay"];
+const HOURSW=["hours","open","opening","closing","closed","what time","weekend","saturday","sunday","late"];
+const ADDRW=["address","location","directions","parking","where are you","located"];
+const BOOKW=["book","appointment","schedule","availability","available","checkup","check up","visit","new patient","see a dentist","see the dentist"];
+const TREATW=["whitening","veneers","implants","braces","invisalign","filling","fillings","crown","crowns","root canal","extraction"];
+const HUMANW=["human","real person","speak to someone","talk to someone","call me","receptionist","staff"];
+const GREETW=["hi","hello","hey","good morning","good afternoon"];
+const THANKS=["thanks","thank you","thx"];
+const NOW=["no thanks","no thank you","not now","cancel","stop","skip","never mind"];
 
-  if (st.step === 'name') {
-    st.name = t.slice(0,40);
-    st.step = 'phone';
-    bot(`Thanks <b>${esc(st.name)}</b>.<br>What's the best phone number for the front desk to reach you?<br><small>Ex: (512) 555-0123</small>`);
-    return;
+/* ---------- state ---------- */
+const st={mode:"chat",reasons:[],urgent:false,carrier:null,name:"",phone:"",when:"",child:false};
+const log=document.getElementById("log"), inp=document.getElementById("inp");
+
+function add(text,cls){const d=document.createElement("div");d.className="m "+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function note(text){const d=document.createElement("div");d.className="note";d.textContent=text;log.appendChild(d);}
+function chips(list){const c=document.createElement("div");c.className="qr";list.forEach(l=>{const b=document.createElement("button");b.type="button";b.textContent=l;b.onclick=()=>{c.remove();handle(l,true)};c.appendChild(b)});log.appendChild(c);log.scrollTop=log.scrollHeight;}
+function addReason(r){if(!st.reasons.includes(r))st.reasons.push(r);}
+const MAIN_CHIPS=["Book appointment","Dental emergency","Fees","Address & hours","Insurance"];
+
+/* ---------- brain ---------- */
+function answer(text){
+  const p=prep(text); const out=[]; let warn=false, askName=false;
+  const severe=has(p,SEVERE);
+  const urgent=severe||has(p,URGENT)||has(p,["dental emergency"]);
+  st.child=st.child||has(p,["son","daughter","child","kid","baby"]);
+  const car=carrierIn(p); if(car) st.carrier=car;
+  const wantsIns=has(p,INS)||!!car;
+
+  if(urgent){
+    st.urgent=true; addReason("Urgent visit"+(st.child?" (child)":""));
+    out.push("That sounds like it needs a prompt look from the dentist. I can't assess it or give treatment advice here, so I'll flag your request as priority for the front desk.");
+    out.push("If you have trouble breathing or swallowing, heavy bleeding, or swelling spreading to your face or neck, call 911 or go to the nearest ER now.");
+    warn=true; askName=true;
   }
-  if (st.step === 'phone') {
-    if (t.replace(/\D/g,'').length < 7) {
-      bot(`That number looks incomplete. Example: <b>(512) 555-0123</b>`);
-      return;
+  if(wantsIns){
+    addReason("Insurance question"+(st.carrier?" ("+st.carrier+")":""));
+    if(st.carrier){
+      const ok=cfg.ins.some(x=>st.carrier.toLowerCase().includes(x)||x.includes(st.carrier.toLowerCase().split(" ")[0]));
+      out.push(ok
+        ? st.carrier+" is one of the plans we work with. Your exact benefits depend on your specific plan, so the front desk will verify them before your visit."
+        : "I can't confirm from here whether "+st.carrier+" is accepted, because it depends on the specific plan. The front desk will verify it for you.");
+    } else {
+      out.push("Coverage depends on your specific plan. Tell me the name of your insurer and the front desk will verify it for you.");
     }
-    st.phone = t;
-    st.step = 'time';
-    bot(`Great. What works best for your <b>${esc(st.motif)}</b>?`, ['This morning','Tomorrow 10am','Tomorrow 2:30pm','Flexible this week']);
-    return;
+    askName=true;
   }
-  if (st.step === 'time') {
-    const now = new Date().toLocaleString('en-US');
-    const fiche = `<b>PATIENT REQUEST - ${esc(C.clinic)}</b><br>👤 ${esc(st.name)}<br>📞 ${esc(st.phone)}<br>🦷 ${esc(st.motif)}<br>⏰ ${esc(t)}<br>🕒 ${now}<br><br><small>To be handled by the front desk</small>`;
-    add(fiche, 'card-msg');
-    const body = encodeURIComponent(`${C.clinic} - ${st.motif} - ${st.name} - ${st.phone} - ${t}`);
-    const wrap = document.createElement('div');
-    wrap.style.display = 'flex';
-    wrap.style.flexWrap = 'wrap';
-    wrap.style.gap = '8px';
+  if(has(p,FEESW)){
+    addReason("Fees");
+    out.push("Sample fee ranges (each clinic sets its own):\n"+FEES.map(f=>"- "+f[0]+": "+f[1]).join("\n")+"\nThe final cost depends on your exam. The front desk can give you a written estimate.");
+  }
+  if(has(p,HOURSW)){ out.push("Hours: "+cfg.hours+"."); }
+  if(has(p,ADDRW)){ out.push("Address: "+cfg.addr+", "+cfg.city+"."); }
+  if(has(p,TREATW)){
+    addReason("Treatment question");
+    out.push("We can talk you through treatments like fillings, cleanings, whitening, veneers and implants. The dentist decides what suits you after an exam, so I'll pass your question to the team.");
+    askName=true;
+  }
+  if(has(p,BOOKW)){ addReason("Appointment request"); out.push("Happy to pass an appointment request to the front desk."); askName=true; }
+  if(has(p,HUMANW)){ addReason("Asked to speak with staff"); out.push("I'll ask the front desk to contact you."); askName=true; }
 
-    const a1 = document.createElement('a');
-    a1.className = 'act'; a1.target = '_blank'; a1.textContent = 'Text the front desk';
-    a1.href = `sms:+${C.tel}?&body=${body}`;
-
-    const a2 = document.createElement('a');
-    a2.className = 'act'; a2.target = '_blank'; a2.textContent = 'Email the request';
-    a2.href = `mailto:${C.mail}?subject=Appointment%20request%20-%20${encodeURIComponent(st.motif)}&body=${body}`;
-
-    wrap.appendChild(a1); wrap.appendChild(a2);
-    log.appendChild(wrap);
-
-    bot(`✅ <b>Thanks ${esc(st.name)}, request captured.</b><br>Your <b>${esc(st.motif.toLowerCase())}</b> request for <b>${esc(t)}</b> is recorded.<br>The front desk will confirm the exact time.<br><br>📍 ${esc(C.clinic)} - ${esc(C.city)}<br>🕘 Mon-Fri 8am-5pm, Sat 9am-1pm`, ['Thanks','Directions']);
-    st = { step: null, name: '', phone: '', motif: 'Consultation' };
-    return;
+  if(!out.length){
+    if(has(p,THANKS)) return {text:"You're welcome. Anything else?",chips:true};
+    if(has(p,GREETW)&&p.tk.length<=4) return {text:"Hello, and welcome to "+cfg.clinic+". I can answer questions about insurance, fees, hours and urgent visits, and send requests to the front desk.",chips:true};
+    addReason("Other question");
+    return {text:"I'm not sure I can answer that one correctly, so I'd rather not guess. I can send it to the front desk instead.",askName:true};
   }
-
-  if (/cancel|forget it|never mind/.test(n)) {
-    st = { step: null, name: '', phone: '' };
-    bot(`No problem, request cancelled.`, T.chips);
-    return;
-  }
-  if (/\b(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(n) && t.length < 30) {
-    bot(T.hi, T.chips); return;
-  }
-  if (/price|fee|cost|how much|quote|insurance|whitening|veneer|cleaning|implant|cavity|crown|braces|invisalign/.test(n)) {
-    let soin = 'New patient exam';
-    if (/whitening/.test(n)) soin = 'Whitening';
-    if (/cleaning|scale/.test(n)) soin = 'Cleaning';
-    if (/veneer/.test(n)) soin = 'Veneer';
-    if (/implant/.test(n)) soin = 'Implant';
-    if (/cavity|filling/.test(n)) soin = 'Filling';
-    if (/crown|root canal/.test(n)) soin = 'Crown / Root canal';
-    if (/braces|invisalign|aligner|ortho/.test(n)) soin = 'Orthodontics';
-    st.motif = soin;
-    bot(`🦷 <b>${soin} - ${esc(C.city)} office</b><br><br><b>Estimated fees:</b><br>• Exam + X-ray: $89<br>• Cleaning + Polish: $150<br>• Composite filling: $200-$350<br>• In-office whitening: $350-$500<br>• Veneer: from $900<br>• Ceramic crown: from $1,200<br>• Implant: custom quote after CBCT<br><br><small>Final quote by the doctor after clinical exam.</small><br><br>Should I forward an appointment request for <b>${soin.toLowerCase()}</b>?`, ['Yes, book '+soin,'Address','Other treatment']);
-    return;
-  }
-  if (/address|where|located|direction|map|hours|open|close|schedule/.test(n)) {
-    bot(`📍 <b>${esc(C.clinic)} - ${esc(C.city)}</b><br>${esc(C.addr)}, ${esc(C.city)}<br><br>🕘 Mon-Fri 8am-5pm, Sat 9am-1pm<br>Sunday: emergency phone calls only<br><br><small>Every field is configurable via ?clinic= ?city= ?addr=</small>`, ['Book appointment','Fees','Call the office']);
-    return;
-  }
-  if (/emergen|pain|ache|abscess|swollen|bleed|broke|hurts/.test(n)) {
-    st.motif = 'Dental emergency - ' + t.slice(0,60);
-    st.step = 'name';
-    bot(`🚨 <b>Tooth pain: priority handling.</b><br><br>While you wait:<br>• Rinse with warm salt water, avoid aspirin on the gum<br>• Avoid very hot or cold food/drinks<br>• The front desk will call you back as a priority<br><br>What's your first name for the priority list?`);
-    return;
-  }
-  if (/appointment|book|schedule|visit|check ?up|consult|rdv/.test(n)) {
-    st.motif = 'Consultation';
-    st.step = 'name';
-    bot(`📅 I can take your appointment request.<br>What's your first name?`);
-    return;
-  }
-  bot(`Got it: "<b>${esc(t)}</b>".<br>Here's what I can help with:`, T.chips);
+  return {text:out.join("\n\n"),warn,askName,chips:!askName};
 }
 
-$('f').onsubmit = e => {
-  e.preventDefault();
-  const v = $('in').value;
-  $('in').value = '';
-  handle(v);
-};
-$('fab').onclick = () => {
-  $('box').classList.toggle('on');
-  if (!log.children.length) { bot(T.hi, T.chips); }
-};
-$('x').onclick = () => $('box').classList.remove('on');
-ui();
+function handle(text,fromChip){
+  text=text.trim(); if(!text)return;
+  add(text,"me");
+  const reply=(t,cls)=>{const ty=add("Typing...","bot typing");setTimeout(()=>{ty.remove();add(t,"bot"+(cls?" "+cls:""));},450);};
+
+  if(st.mode==="chat"){
+    if(fromChip){ text = ({"Book appointment":"I want to book an appointment","Dental emergency":"dental emergency","Address & hours":"address and hours","Insurance":"insurance question"})[text]||text; }
+    const r=answer(text);
+    setTimeout(()=>{ if(r.warn) {} },0);
+    const ty=add("Typing...","bot typing");
+    setTimeout(()=>{
+      ty.remove(); add(r.text,"bot"+(r.warn?" warn":""));
+      if(r.askName){ st.mode="name"; add("To pass this to the front desk, what's your first name? (Please don't include medical details here.)","bot"); }
+      else if(r.chips){ chips(MAIN_CHIPS); }
+    },450);
+    return;
+  }
+  if(has(prep(text),NOW)){ st.mode="chat"; reply("No problem, nothing was sent. What else can I help with?"); setTimeout(()=>chips(MAIN_CHIPS),500); return; }
+  if(st.mode==="name"){
+    st.name=text.replace(/[^A-Za-z' -]/g,"").trim().split(/\s+/)[0]||text.slice(0,20);
+    st.mode="phone"; reply("Thanks, "+st.name+". What's the best phone number to reach you?"); return;
+  }
+  if(st.mode==="phone"){
+    if(text.replace(/\D/g,"").length<10){ reply("That doesn't look like a full phone number. Please include the area code, or say \"skip\" to cancel."); return; }
+    st.phone=text; st.mode="when"; reply("And when is best to call you or to see the dentist? (for example: tomorrow morning)"); return;
+  }
+  if(st.mode==="when"){
+    st.when=text; st.mode="chat";
+    const ty=add("Typing...","bot typing");
+    setTimeout(()=>{ty.remove();finish();},450); return;
+  }
+}
+
+function finish(){
+  const payload={clinic:cfg.clinic,city:cfg.city,priority:st.urgent?"URGENT":"Normal",name:st.name,phone:st.phone,preferred_time:st.when,reasons:st.reasons,insurer_mentioned:st.carrier,for_child:st.child,received_at:new Date().toISOString()};
+  if(FORWARD_URL){ fetch(FORWARD_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{}); }
+  add(st.urgent
+    ? "Thank you, "+st.name+". Your request is marked priority and the front desk will call you as soon as possible."
+    : "Thank you, "+st.name+". The front desk will contact you "+(st.when?"("+st.when+") ":"")+"to follow up.","bot");
+  const t=document.createElement("div");t.className="ticket";
+  const h=document.createElement("h3");h.textContent=FORWARD_URL?"Sent to your front desk":"What your front desk receives (demo, not actually sent)";t.appendChild(h);
+  const dl=document.createElement("dl");
+  [["Priority",payload.priority],["Name",payload.name],["Phone",payload.phone],["Preferred time",payload.preferred_time],["Reason",payload.reasons.join(", ")||"General"]].forEach(([k,v])=>{
+    const a=document.createElement("dt");a.textContent=k;const b=document.createElement("dd");b.textContent=v;if(k==="Priority"&&v==="URGENT")b.className="pri";dl.appendChild(a);dl.appendChild(b);});
+  t.appendChild(dl);log.appendChild(t);log.scrollTop=log.scrollHeight;
+  st.reasons=[];st.urgent=false;st.carrier=null;st.child=false;
+  setTimeout(()=>chips(MAIN_CHIPS),500);
+}
+
+/* ---------- UI ---------- */
+const panel=document.getElementById("panel");
+function open(){panel.classList.add("open");if(!log.children.length)start();inp.focus();}
+function start(){
+  add("Hello, and welcome to "+cfg.clinic+". I'm the virtual front desk assistant. I can answer questions about insurance, fees, hours and urgent visits, and send requests to the front desk.","bot");
+  note("I don't diagnose or give treatment advice. Please don't share medical details in this chat.");
+  chips(MAIN_CHIPS);
+}
+document.getElementById("fab").onclick=()=>panel.classList.contains("open")?panel.classList.remove("open"):open();
+document.getElementById("x").onclick=()=>panel.classList.remove("open");
+document.getElementById("f").onsubmit=e=>{e.preventDefault();const v=inp.value;inp.value="";handle(v,false);};
 </script>
 </body>
 </html>
