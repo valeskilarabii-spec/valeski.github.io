@@ -52,7 +52,7 @@ footer{max-width:1120px;margin:0 auto 30px;padding:0 18px;color:#64748b;font-siz
     </div>
   </section>
   <section class="chat" aria-label="Conversation avec l'assistant immobilier">
-    <div class="chat-head"><div class="avatar">🏠</div><div><strong>Horizon Bot</strong><small>Assistant de démonstration</small></div><span class="live" aria-label="Disponible"></span></div>
+    <div class="chat-head"><div class="avatar">🏠</div><div><strong>Horizon Bot</strong><small>Assistant de démonstration</small></div><span class="live"></span></div>
     <div id="messages" aria-live="polite">
       <div class="msg bot">Bonjour 👋 Je suis l’assistant de démonstration de l’Agence Horizon. Vous souhaitez acheter, louer, ou simplement consulter des biens ?</div>
       <div class="quick">
@@ -62,7 +62,7 @@ footer{max-width:1120px;margin:0 auto 30px;padding:0 18px;color:#64748b;font-siz
       </div>
     </div>
     <form class="composer" id="chatForm">
-      <input id="input" placeholder="Écrivez votre message…" autocomplete="off" aria-label="Votre message">
+      <input id="input" placeholder="Écrivez votre message…" autocomplete="off">
       <button id="sendBtn" type="submit">Envoyer</button>
     </form>
   </section>
@@ -73,7 +73,6 @@ footer{max-width:1120px;margin:0 auto 30px;padding:0 18px;color:#64748b;font-siz
   const messages = document.getElementById('messages');
   const input = document.getElementById('input');
   const form = document.getElementById('chatForm');
-  const sendBtn = document.getElementById('sendBtn');
   const quickTexts = document.querySelectorAll('[data-text]');
   const state = {step:'project', project:'', budget:null, area:'', kind:'', timing:'', finance:'', consent:false, name:'', phone:'', finished:false};
   const listings = [
@@ -82,57 +81,64 @@ footer{max-width:1120px;margin:0 auto 30px;padding:0 18px;color:#64748b;font-siz
     {title:'Studio meublé — Lyon 6e',type:'Studio',area:'Lyon 6',price:780,mode:'location',detail:'Studio · 25 m² · 780 €/mois · annonce fictive'},
     {title:'T2 à Villeurbanne',type:'Appartement',area:'Villeurbanne',price:920,mode:'location',detail:'2 pièces · 43 m² · 920 €/mois · annonce fictive'}
   ];
-  function add(text,who){
-    const node=document.createElement('div'); node.className='msg '+who; node.textContent=text; messages.appendChild(node); messages.scrollTop=messages.scrollHeight;
-  }
-  function quick(options){
-    const wrap=document.createElement('div'); wrap.className='quick';
-    options.forEach(label=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>{input.value=label;submitMessage();});wrap.appendChild(b);});
-    messages.appendChild(wrap); messages.scrollTop=messages.scrollHeight;
-  }
-  function moneyNumber(text){
-    const match=text.replace(/\s/g,'').replace(/€/g,'').match(/\d+(?:[.,]\d+)?/);
-    if(!match)return null;
-    let n=Number(match[0].replace(',','.'));
-    if(/k|mill/i.test(text.toLowerCase())) n*=1000;
-    return Number.isFinite(n)?n:null;
-  }
-  function showListings(){
-    const max=moneyNumber(state.budget);
-    const mode=state.project==='location'?'location':'achat';
-    const area=state.area.toLowerCase();
-    let found=listings.filter(x=>x.mode===mode);
-    if(max!==null) found=found.filter(x=>mode==='location'?x.price<=max:x.price<=max);
-    if(area && !['peu importe','toute la ville','aucun'].includes(area)){
-      const narrowed=found.filter(x=>x.area.toLowerCase().includes(area) || area.includes(x.area.toLowerCase()));
-      if(narrowed.length) found=narrowed;
+  function add(text,who){ const node=document.createElement('div'); node.className='msg '+who; node.textContent=text; messages.appendChild(node); messages.scrollTop=messages.scrollHeight; }
+  function quick(options){ const wrap=document.createElement('div'); wrap.className='quick'; options.forEach(label=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>{input.value=label;submitMessage();});wrap.appendChild(b);}); messages.appendChild(wrap); messages.scrollTop=messages.scrollHeight; }
+  function moneyNumber(value) {
+    const text = String(value || '').toLowerCase().trim();
+    const compact = text.replace(/\s/g, '').replace(/€/g, '').replace(/,/g, '.');
+    const match = compact.match(/\d+(?:\.\d+)?/);
+    if (!match) return null;
+
+    let amount = Number(match[0]);
+    if (/million|millions|\bmill?\b|\bm\b/.test(text)) {
+      amount *= 1000000;
+    } else if (/\bk\b|\b000\b|\bmille\b/.test(text)) {
+      amount *= 1000;
     }
-    if(!found.length){
-      add("Je n’ai pas trouvé d’exemple correspondant dans les annonces fictives. Essayez un autre budget ou un autre secteur. Ces exemples ne représentent pas des disponibilités réelles.",'bot');
-      state.step='budget'; return;
-    }
-    add("Voici des exemples fictifs correspondant à une partie de vos critères :\n\n"+found.map((x,i)=>`${i+1}. ${x.title}\n${x.detail}\nPrix : ${x.mode==='location'?x.price+' €/mois':x.price.toLocaleString('fr-FR')+' €'}`).join('\n\n')+"\n\nCes annonces sont uniquement des exemples de démonstration.",'bot');
-    state.step='next';
-    quick(['Affiner ma recherche','Préparer une demande à l’agence','Terminer']);
+    return Number.isFinite(amount) ? amount : null;
   }
+
+  // TA NOUVELLE FONCTION CORRIGÉE
+  function showListings() {
+    const max = moneyNumber(state.budget);
+    const mode = state.project === 'location' ? 'location' : 'achat';
+    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '').trim();
+    const area = normalize(state.area);
+    let found = listings.filter(x => x.mode === mode);
+    if (max !== null && Number.isFinite(max)) { found = found.filter(x => Number.isFinite(Number(x.price)) && Number(x.price) <= max); }
+    if (area && !['peuimporte', 'toutelaville', 'aucun'].includes(area)) {
+      found = found.filter(x => normalize(x.area).includes(area));
+    }
+    if (!found.length) {
+      const alternatives = listings.filter(x => {
+        if (x.mode !== mode) return false;
+        if (max !== null && Number.isFinite(max) && (!Number.isFinite(Number(x.price)) || Number(x.price) > max)) return false;
+        return true;
+      });
+      if (alternatives.length) {
+        add(`Je n’ai pas trouvé d’annonce correspondant exactement à ${state.area} avec ${mode === 'location' ? 'un loyer maximum de ' : 'un budget maximum de '}${state.budget}${mode === 'location' ? ' €/mois' : ' €'}.\n\nVoici d’autres exemples respectant le type de projet et le budget, mais pas nécessairement le secteur demandé :\n\n` + alternatives.map((x, i) => `${i + 1}. ${x.title}\n${x.detail}\nPrix : ${mode === 'location' ? Number(x.price).toLocaleString('fr-FR') + ' €/mois' : Number(x.price).toLocaleString('fr-FR') + ' €'}`).join('\n\n'), 'bot');
+      } else {
+        add(`Je n’ai trouvé aucun exemple pour un projet de ${mode === 'location' ? 'location' : 'achat'} avec ce budget. Essaie d’augmenter ton budget ou de modifier ta recherche.`, 'bot');
+      }
+      state.step = 'next'; quick(['Affiner ma recherche','Préparer une demande à l’agence','Terminer']); return;
+    }
+    add("Voici des exemples fictifs correspondant à tes critères :\n\n" + found.map((x, i) => `${i + 1}. ${x.title}\n${x.detail}\nPrix : ${mode === 'location' ? Number(x.price).toLocaleString('fr-FR') + ' €/mois' : Number(x.price).toLocaleString('fr-FR') + ' €'}`).join('\n\n') + '\n\nCes annonces sont des exemples de démonstration, pas des offres immobilières vérifiées.', 'bot');
+    state.step = 'next'; quick(['Affiner ma recherche','Préparer une demande à l’agence','Terminer']);
+  }
+
   function process(raw){
     const text=raw.trim(), low=text.toLowerCase();
     if(state.finished){add("Cette démonstration est terminée. Rechargez la page pour recommencer.",'bot');return;}
     if(state.step==='project'){
       if(/voir|annonce|bien disponible|logement/i.test(low)){state.project='achat';state.step='budget';add("Pour filtrer les exemples, quel est votre budget maximum en euros ? (ex. 250000 € pour un achat)",'bot');return;}
-      if(/louer|location|locataire/i.test(low))state.project='location';
-      else if(/acheter|achat|acquérir/i.test(low))state.project='achat';
-      else {add("Dites-moi si vous souhaitez acheter, louer ou voir les biens de démonstration.",'bot');quick(['Acheter','Louer','Voir les biens']);return;}
+      if(/louer|location|locataire/i.test(low))state.project='location'; else if(/acheter|achat|acquérir/i.test(low))state.project='achat'; else {add("Dites-moi si vous souhaitez acheter, louer ou voir les biens de démonstration.",'bot');quick(['Acheter','Louer','Voir les biens']);return;}
       state.step='budget'; add(state.project==='location'?"Quel est votre loyer mensuel maximum en euros ?":"Quel est votre budget maximum en euros ?",'bot'); return;
     }
     if(state.step==='budget'){
-      const n=moneyNumber(text);
-      if(n===null || n<=0){add("Je n’ai pas reconnu le montant. Indiquez un montant, par exemple 250000 € ou 900 €/mois.",'bot');return;}
-      state.budget=n; state.step='area'; add("Dans quel secteur souhaitez-vous chercher ? (ex. Lyon 6, Lyon 3, Villeurbanne ou « peu importe »)",'bot');return;
+      const n=moneyNumber(text); if(n===null || n<=0){add("Je n’ai pas reconnu le montant. Indiquez un montant, par exemple 250000 € ou 900 €/mois.",'bot');return;}
+      state.budget=text; state.step='area'; add("Dans quel secteur souhaitez-vous chercher ? (ex. Lyon 6, Lyon 3, Villeurbanne ou « peu importe »)",'bot');return;
     }
-    if(state.step==='area'){
-      state.area=text; showListings();return;
-    }
+    if(state.step==='area'){ state.area=text; showListings();return; }
     if(state.step==='next'){
       if(/affiner/i.test(low)){state.step='budget';state.budget=null;add("Indiquez votre nouveau budget maximum.",'bot');return;}
       if(/demande|agence|contact/i.test(low)){state.step='consent';add("Je peux préparer un résumé à copier. Dans une version réelle, l’agence ne recevra vos coordonnées qu’après une information de confidentialité claire et votre accord. Souhaitez-vous poursuivre avec des données fictives ? (oui/non)",'bot');return;}
@@ -142,25 +148,13 @@ footer{max-width:1120px;margin:0 auto 30px;padding:0 18px;color:#64748b;font-siz
       if(!/^(oui|oui merci|d'accord|daccord)$/i.test(text)){state.finished=true;add("Pas de problème. Aucun contact n’a été recueilli ni transmis.",'bot');return;}
       state.consent=true;state.step='name';add("Pour cette démonstration uniquement, saisissez un nom fictif.",'bot');return;
     }
-    if(state.step==='name'){
-      if(text.length<2){add("Veuillez saisir au moins deux caractères.",'bot');return;}
-      state.name=text;state.step='phone';add("Saisissez un numéro fictif au format international, par exemple +33 6 00 00 00 00. N’utilisez pas un vrai numéro dans cette démo.",'bot');return;
-    }
+    if(state.step==='name'){ if(text.length<2){add("Veuillez saisir au moins deux caractères.",'bot');return;} state.name=text;state.step='phone';add("Saisissez un numéro fictif au format international, par exemple +33 6 00 00 00 00. N’utilisez pas un vrai numéro dans cette démo.",'bot');return; }
     if(state.step==='phone'){
-      const phone=text.replace(/[\s().-]/g,'');
-      if(!/^\+[1-9]\d{7,14}$/.test(phone)){add("Format non reconnu. Exemple fictif : +33 6 00 00 00 00.",'bot');return;}
-      state.phone=text;state.step='summary';
-      const summary=`RÉSUMÉ DE DÉMONSTRATION — À COPIER MANUELLEMENT\nProjet : ${state.project}\nBudget maximum : ${state.budget}\nSecteur : ${state.area}\nNom fictif : ${state.name}\nTéléphone fictif : ${state.phone}\n\nAucun envoi automatique n’a été effectué.`;
-      add(summary,'bot');
-      const wrap=document.createElement('div');wrap.className='quick';const copy=document.createElement('button');copy.type='button';copy.textContent='Copier le résumé';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(summary);copy.textContent='Résumé copié';}catch(e){add("La copie automatique n’est pas disponible dans ce navigateur. Vous pouvez sélectionner le résumé et le copier manuellement.",'bot');}});wrap.appendChild(copy);messages.appendChild(wrap);messages.scrollTop=messages.scrollHeight;
-      state.finished=true;add("Fin de la démonstration. Pour recevoir de vrais prospects, il faudra ajouter un backend sécurisé et une intégration autorisée.",'bot');return;
+      const phone=text.replace(/[\s().-]/g,''); if(!/^\+[1-9]\d{7,14}$/.test(phone)){add("Format non reconnu. Exemple fictif : +33 6 00 00 00 00.",'bot');return;}
+      state.phone=text; const summary=`RÉSUMÉ DE DÉMONSTRATION — À COPIER MANUELLEMENT\nProjet : ${state.project}\nBudget maximum : ${state.budget}\nSecteur : ${state.area}\nNom fictif : ${state.name}\nTéléphone fictif : ${state.phone}\n\nAucun envoi automatique n’a été effectué.`; add(summary,'bot'); state.finished=true;add("Fin de la démonstration.",'bot');return;
     }
-    add("Je peux vous aider à préciser le projet, le budget et le secteur. Cette version est un prototype guidé, pas encore une IA libre.",'bot');
   }
-  function submitMessage(){
-    const v=input.value.trim(); if(!v||state.finished)return;
-    add(v,'user');input.value='';process(v);
-  }
+  function submitMessage(){ const v=input.value.trim(); if(!v||state.finished)return; add(v,'user');input.value='';process(v); }
   form.addEventListener('submit',e=>{e.preventDefault();submitMessage();});
   quickTexts.forEach(b=>b.addEventListener('click',()=>{input.value=b.dataset.text;submitMessage();}));
 })();
