@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agence Horizon - Lyon | Assistant Virtuel</title>
+<style>
+body { font-family: 'Inter', sans-serif; background: #0a0f1e; color: white; margin: 0; padding: 0; }
+.header { background: linear-gradient(90deg, #0a0f1e, #1e3a5f); padding: 40px; text-align: center; border-bottom: 2px solid #00d9ff; }
+.header h1 { color: #00d9ff; margin: 0; font-size: 32px; }
+.hero { display: flex; padding: 40px; gap: 40px; max-width: 1200px; margin: auto; }
+.hero-text { flex: 1; }
+.hero-text h2 { font-size: 42px; line-height: 1.1; }
+.hero-text h2 span { color: #00d9ff; }
+.card { background: #141c2f; border: 1px solid #1e3a5f; border-radius: 16px; padding: 20px; margin-top: 20px; }
+.bot-window { flex: 0 0 380px; background: white; border-radius: 20px; height: 600px; display: flex; flex-direction: column; overflow: hidden; color: #111; box-shadow: 0 0 40px rgba(0,217,255,0.3); }
+.bot-header { background: #0a0f1e; color: white; padding: 16px; display: flex; align-items: center; gap: 12px; }
+.bot-dot { width: 10px; height: 10px; background: #00ff88; border-radius: 50%; }
+.bot-messages { flex: 1; padding: 16px; overflow-y: auto; background: #f7fafc; }
+.msg { padding: 10px 14px; border-radius: 14px; margin: 8px 0; max-width: 80%; font-size: 14px; }
+.msg.bot { background: #0a0f1e; color: white; }
+.msg.user { background: #00d9ff; color: #0a0f1e; margin-left: auto; }
+.bot-input { display: flex; padding: 12px; border-top: 1px solid #e2e8f0; background: white; }
+.bot-input input { flex: 1; border: 1px solid #cbd5e0; border-radius: 20px; padding: 10px 16px; }
+.bot-input button { background: #0a0f1e; color: #00d9ff; border: none; border-radius: 50%; width: 40px; height: 40px; margin-left: 8px; cursor: pointer; }
+.badge { display: inline-block; background: #00d9ff22; color: #00d9ff; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin: 4px; }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>AGENCE HORIZON • LYON</h1>
+<p>Démo Live - Bot Qualificateur d'Acheteurs 24/7 - RGPD Compliant</p>
+</div>
+<div class="hero">
+<div class="hero-text">
+<h2>On ne perd plus <span>un seul acheteur</span> la nuit.</h2>
+<p style="color:#a0aec0; font-size:18px;">Notre assistant virtuel qualifie, filtre et réserve les visites pendant que vous dormez.</p>
+<div class="card">
+<h3 style="color:#00d9ff; margin-top:0;">Ce que le bot fait :</h3>
+<p>✅ Vérifie budget + financement<br>✅ Filtre les curieux<br>✅ Valide numéro avec indicatif +33<br>✅ Propose créneau de visite<br>✅ Envoie lead qualifié sur votre WhatsApp/CRM</p>
+</div>
+<div class="card" style="border-color:#00d9ff;">
+<h3 style="margin:0;">Prix Europe : 250€/mois</h3>
+<p style="color:#a0aec0; margin-bottom:0;">1 vente = 8.000€ de commission. Le bot est rentabilisé en 1 lead.</p>
+</div>
+</div>
+<div class="bot-window">
+<div class="bot-header"><div class="bot-dot"></div><div><strong>Horizon Bot</strong><br><small style="color:#a0aec0;">En ligne - Répond en 2s</small></div></div>
+<div class="bot-messages" id="messages">
+<div class="msg bot">Bonjour ! 👋 Bienvenue à l'Agence Horizon Lyon.<br><br>Vous cherchez à acheter ou louer ?</div>
+</div>
+<div class="bot-input"><input id="input" placeholder="Tapez votre message..."><button onclick="send()">➤</button></div>
+</div>
+</div>
+<script>
+const msgs = document.getElementById('messages');
+const input = document.getElementById('input');
+let step = 0;
+let data = {};
+function add(text, who){ const d=document.createElement('div'); d.className='msg '+who; d.innerHTML=text; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; }
+function send(){
+  const v=input.value.trim(); if(!v) return;
+  add(v,'user'); input.value='';
+  setTimeout(()=>{
+    if(step===0){ add("Super ! Quel est votre budget approximatif ?",'bot'); }
+    else if(step===1){ data.budget=v; add(`Noté : ${v}. Sur quel secteur à Lyon ?`, 'bot'); }
+    else if(step===2){ data.secteur=v; add(`Parfait pour ${v}. Êtes-vous financé ? (oui / en cours / non)`, 'bot'); }
+    else if(step===3){ 
+      if(v.toLowerCase().includes('non') || v.includes('curieux')){ add("Merci. Je vous envoie notre guide financement. Revenez quand votre projet sera plus avancé !",'bot'); step=99; return; }
+      add("Excellent, profil sérieux. Votre nom et numéro avec +33 ?",'bot'); }
+    else if(step===4){ 
+      if(!v.includes('+33')){ add("⚠️ Merci de mettre l'indicatif +33. Ex: +33 6 12 34 56 78",'bot'); return; }
+      add(`Merci ! ✅ Profil qualifié.<br><strong>Budget:</strong> ${data.budget}<br><strong>Secteur:</strong> ${data.secteur}<br><strong>Contact:</strong> ${v}<br><br>Visite demain 10h ou 14h ?`, 'bot'); }
+    else { add("✅ C'est bloqué ! Confirmation par SMS/WhatsApp.",'bot'); }
+    step++;
+  },600);
+}
+input.addEventListener('keypress', e=>{ if(e.key==='Enter') send(); });
+</script>
+</body>
+</html>
