@@ -1,7 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agence Horizon - Lyon | Assistant Virtuel</title>
+<style>
+body { font-family: 'Inter', sans-serif; background:#f3f4f6; margin:0; padding:0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+.header { background: linear-gradient(135deg,#0f172a,#1e40af); color:white; padding:20px; text-align:center; width:100%; position:fixed; top:0; }
+.header h1 { margin:0; font-size:22px; }
+.header p { margin:5px 0 0; opacity:0.8; font-size:13px; }
+.bot-window { width:100%; max-width:420px; background:white; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.15); margin-top:80px; overflow:hidden; display:flex; flex-direction:column; height:75vh; }
+.bot-header { background:#0f172a; color:white; padding:15px; font-weight:bold; text-align:center; }
+#messages { flex:1; padding:15px; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column; gap:10px; }
+.msg { padding:12px 16px; border-radius:18px; max-width:80%; line-height:1.4; font-size:14px; white-space:pre-line; }
+.bot { background:white; border:1px solid #e2e8f0; align-self:flex-start; border-bottom-left-radius:4px; }
+.user { background:#1e40af; color:white; align-self:flex-end; border-bottom-right-radius:4px; }
+.input-area { display:flex; padding:12px; border-top:1px solid #e2e8f0; background:white; }
+#input { flex:1; padding:12px; border:1px solid #cbd5e1; border-radius:20px; outline:none; }
+#sendBtn { margin-left:8px; background:#1e40af; color:white; border:none; padding:0 20px; border-radius:20px; cursor:pointer; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AGENCE HORIZON - Lyon 6</h1>
+  <p>Assistant virtuel • Réponse immédiate • 24/7</p>
+</div>
+
+<div class="bot-window">
+  <div class="bot-header">💬 Assistant Agence Horizon</div>
+  <div id="messages">
+    <div class="msg bot">Bonjour ! Je suis l'assistant virtuel de l'Agence Horizon. Souhaitez-vous acheter ou louer un logement à Lyon ?</div>
+  </div>
+  <div class="input-area">
+    <input id="input" placeholder="Tapez votre message..." autocomplete="off" />
+    <button id="sendBtn" onclick="send()">OK</button>
+  </div>
+</div>
+
 <script>
 const msgs = document.getElementById('messages');
 const input = document.getElementById('input');
-
 let step = 0;
 let data = {};
 let finished = false;
@@ -13,202 +52,68 @@ function add(text, who) {
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 }
-
-function normalize(text) {
-  return text.trim().toLowerCase();
-}
-
+function normalize(text) { return text.trim().toLowerCase(); }
 function send() {
   const v = input.value.trim();
-
   if (!v || finished) return;
-
   add(v, 'user');
   input.value = '';
-
-  setTimeout(() => {
-    processMessage(v);
-  }, 400);
+  setTimeout(() => { processMessage(v); }, 400);
 }
-
 function processMessage(v) {
   const answer = normalize(v);
-
   switch (step) {
-
     case 0:
-      if (
-        !answer.includes('acheter') &&
-        !answer.includes('achat') &&
-        !answer.includes('louer') &&
-        !answer.includes('location')
-      ) {
-        add(
-          "Souhaitez-vous acheter ou louer un logement ?",
-          'bot'
-        );
-        return;
+      if (!answer.includes('acheter') && !answer.includes('achat') && !answer.includes('louer') && !answer.includes('location')) {
+        add("Souhaitez-vous acheter ou louer un logement ?", 'bot'); return;
       }
-
-      data.projet =
-        answer.includes('louer') ||
-        answer.includes('location')
-          ? 'Location'
-          : 'Achat';
-
-      add(
-        "Très bien ! Quel est votre budget approximatif en euros ?",
-        'bot'
-      );
-
-      step = 1;
-      break;
-
+      data.projet = answer.includes('louer') || answer.includes('location') ? 'Location' : 'Achat';
+      add("Très bien ! Quel est votre budget approximatif en euros ?", 'bot');
+      step = 1; break;
     case 1:
       data.budget = v;
-
-      add(
-        "Merci ! Dans quel quartier ou quelle ville recherchez-vous un bien ?",
-        'bot'
-      );
-
-      step = 2;
-      break;
-
+      add("Merci ! Dans quel quartier ou quelle ville recherchez-vous un bien ?", 'bot');
+      step = 2; break;
     case 2:
       data.secteur = v;
-
       if (data.projet === 'Achat') {
-        add(
-          "Où en êtes-vous dans votre financement ? " +
-          "Répondez : financement obtenu, en cours ou pas encore commencé.",
-          'bot'
-        );
+        add("Où en êtes-vous dans votre financement ? Répondez : financement obtenu, en cours ou pas encore commencé.", 'bot');
         step = 3;
       } else {
-        add(
-          "Quel est votre délai souhaité pour emménager ?",
-          'bot'
-        );
+        add("Quel est votre délai souhaité pour emménager ?", 'bot');
         step = 4;
       }
       break;
-
     case 3:
-      if (
-        answer.includes('obtenu') ||
-        answer.includes('accord') ||
-        answer.includes('validé')
-      ) {
-        data.financement = 'Financement obtenu';
-      } else if (
-        answer.includes('cours') ||
-        answer.includes('demande') ||
-        answer.includes('attente')
-      ) {
-        data.financement = 'Financement en cours';
-      } else if (
-        answer.includes('commencé') ||
-        answer.includes('commence') ||
-        answer.includes('pas encore')
-      ) {
-        data.financement = 'Financement non commencé';
-      } else {
-        add(
-          "Je n'ai pas compris. Indiquez si votre financement est obtenu, en cours ou pas encore commencé.",
-          'bot'
-        );
-        return;
-      }
-
-      add(
-        "Quel est votre nom et prénom ?",
-        'bot'
-      );
-
-      step = 5;
-      break;
-
+      if (answer.includes('obtenu') || answer.includes('accord') || answer.includes('validé')) data.financement = 'Financement obtenu';
+      else if (answer.includes('cours') || answer.includes('demande') || answer.includes('attente')) data.financement = 'Financement en cours';
+      else if (answer.includes('commencé') || answer.includes('commence') || answer.includes('pas encore')) data.financement = 'Financement non commencé';
+      else { add("Je n'ai pas compris. Indiquez si votre financement est obtenu, en cours ou pas encore commencé.", 'bot'); return; }
+      add("Quel est votre nom et prénom ?", 'bot');
+      step = 5; break;
     case 4:
       data.emmenagement = v;
-
-      add(
-        "Quel est votre nom et prénom ?",
-        'bot'
-      );
-
-      step = 5;
-      break;
-
+      add("Quel est votre nom et prénom ?", 'bot');
+      step = 5; break;
     case 5:
-      if (v.length < 2) {
-        add(
-          "Merci de saisir un nom valide.",
-          'bot'
-        );
-        return;
-      }
-
+      if (v.length < 2) { add("Merci de saisir un nom valide.", 'bot'); return; }
       data.nom = v;
-
-      add(
-        "Quel est votre numéro de téléphone avec l'indicatif international ? " +
-        "Exemple : +33 6 12 34 56 78.",
-        'bot'
-      );
-
-      step = 6;
-      break;
-
+      add("Quel est votre numéro de téléphone avec l'indicatif international ? Exemple : +33 6 12 34 56 78.", 'bot');
+      step = 6; break;
     case 6: {
       const phone = v.replace(/[\s().-]/g, '');
-
-      if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
-        add(
-          "Le numéro semble incorrect. Indiquez l'indicatif du pays " +
-          "et le numéro, par exemple +33 6 12 34 56 78.",
-          'bot'
-        );
-        return;
-      }
-
+      if (!/^\+[1-9]\d{7,14}$/.test(phone)) { add("Le numéro semble incorrect. Indiquez l'indicatif du pays et le numéro, par exemple +33 6 12 34 56 78.", 'bot'); return; }
       data.telephone = v;
-
-      add(
-        "Merci " + data.nom + " ! Votre demande est prête.\n" +
-        "Projet : " + data.projet + "\n" +
-        "Budget : " + data.budget + "\n" +
-        "Secteur : " + data.secteur + "\n" +
-        (
-          data.financement
-            ? "Financement : " + data.financement + "\n"
-            : "Emménagement : " + data.emmenagement + "\n"
-        ) +
-        "Nous pouvons maintenant rechercher un créneau de visite. " +
-        "Souhaitez-vous une visite le matin ou l'après-midi ?",
-        'bot'
-      );
-
-      step = 7;
-      break;
+      add("Merci " + data.nom + " ! Votre demande est prête.\nProjet : " + data.projet + "\nBudget : " + data.budget + "\nSecteur : " + data.secteur + "\n" + (data.financement ? "Financement : " + data.financement + "\n" : "Emménagement : " + data.emmenagement + "\n") + "Nous pouvons maintenant rechercher un créneau de visite. Souhaitez-vous une visite le matin ou l'après-midi ?", 'bot');
+      step = 7; break;
     }
-
     case 7:
       data.preferenceVisite = v;
-
-      add(
-        "Merci ! Votre préférence a été enregistrée dans cette conversation. " +
-        "Attention : aucune visite n'est encore réservée. " +
-        "L'agence devra vérifier ses disponibilités et vous confirmer le rendez-vous.",
-        'bot'
-      );
-
-      finished = true;
-      break;
+      add("Merci ! Votre préférence a été enregistrée dans cette conversation. Attention : aucune visite n'est encore réservée. L'agence devra vérifier ses disponibilités et vous confirmer le rendez-vous.", 'bot');
+      finished = true; break;
   }
 }
-
-input.addEventListener('keydown', e => {
-  if (e.key === 'Enter') send();
-});
+input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 </script>
+</body>
+</html>
