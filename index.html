@@ -1,28 +1,345 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Valeski Larabi</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dental front desk assistant - demo</title>
 <style>
-body{margin:0;background:#0a0a0a;color:#fff;font-family:Arial}
-nav{padding:20px 5%;font-weight:900;border-bottom:1px solid #222}nav span{color:#CCFF00}
-.hero{padding:80px 8%}h1{font-size:70px;line-height:.9;margin:0;text-transform:uppercase}
-h1 b{color:#CCFF00}h1 i{font-style:normal;-webkit-text-stroke:1px #fff;color:transparent}
-.btn{background:#CCFF00;color:#000;padding:16px 32px;text-decoration:none;font-weight:700;display:inline-block;margin-top:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:#222;margin:40px 8%;border:1px solid #222}
-.card{background:#111;padding:30px}.card.lime{background:#CCFF00;color:#000}
-.foot{padding:60px 8%;border-top:1px solid #222}
-</style></head>
+  :root{
+    --navy:#0f2a5c; --navy-d:#0a1d42; --teal:#0b8a9e; --teal-d:#087282;
+    --ink:#14213d; --muted:#5b6780; --line:#dfe5ef; --bg:#f6f8fc; --white:#fff;
+    --alert:#b3261e; --alert-bg:#fdecea;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  header{background:var(--white);border-bottom:1px solid var(--line);padding:14px 24px;font-weight:700}
+  .hero{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-d) 100%);color:#fff;padding:72px 24px 120px;text-align:center}
+  .hero h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:0 auto 18px;max-width:16ch}
+  .hero p{max-width:60ch;margin:0 auto;color:#cdd8ee;font-size:1.05rem}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1000px;margin:-70px auto 0;padding:0 24px}
+  .card{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--line)}
+  .card h2{font-size:1rem;margin:0 0 8px}
+  .card p{margin:0;color:var(--muted);font-size:.93rem}
+  .card code{display:inline-block;max-width:100%;overflow-wrap:anywhere;word-break:break-all;background:#eef2f9;padding:1px 5px;border-radius:4px;font-size:.85em}
+  .price{max-width:1000px;margin:28px auto 0;padding:0 24px}
+  .price div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:18px 22px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+  .price b{font-size:1.15rem}
+  .price span{color:var(--muted);font-size:.93rem}
+  footer{max-width:1000px;margin:28px auto 140px;padding:0 24px;color:var(--muted);font-size:.85rem}
+
+  /* chat */
+  #fab{position:fixed;right:24px;bottom:24px;width:60px;height:60px;border-radius:50%;border:0;background:var(--teal);color:#fff;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:26px}
+  #fab:focus-visible,#send:focus-visible,#x:focus-visible,.qr button:focus-visible,#inp:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+  #panel{position:fixed;right:24px;bottom:96px;width:min(400px,calc(100vw - 32px));height:min(620px,calc(100vh - 120px));background:var(--white);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);display:none;flex-direction:column;overflow:hidden}
+  #panel.open{display:flex}
+  .ph{background:var(--teal);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .ph b{display:block}
+  .ph small{opacity:.9}
+  #x{background:rgba(255,255,255,.2);color:#fff;border:0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px}
+  #log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fbfcfe}
+  .m{max-width:88%;padding:10px 13px;border-radius:12px;font-size:.92rem;white-space:pre-wrap;word-wrap:break-word}
+  .bot{background:var(--white);border:1px solid var(--line);align-self:flex-start}
+  .me{background:var(--teal);color:#fff;align-self:flex-end}
+  .warn{background:var(--alert-bg);border-color:#f2b8b5;color:#601410}
+  .note{font-size:.78rem;color:var(--muted);align-self:center;text-align:center;max-width:92%}
+  .qr{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start}
+  .qr button{border:1px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:20px;padding:6px 12px;font-size:.84rem;cursor:pointer}
+  .qr button:hover{background:#e8f6f8}
+  .typing{color:var(--muted);font-style:italic;font-size:.85rem}
+  .ticket{border:1px dashed var(--teal);background:#f1fafb;border-radius:10px;padding:12px;font-size:.84rem;align-self:stretch}
+  .ticket h3{margin:0 0 6px;font-size:.84rem;color:var(--teal-d)}
+  .ticket dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+  .ticket dt{color:var(--muted)}
+  .ticket dd{margin:0;font-weight:600}
+  .ticket .pri{color:var(--alert)}
+  form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+  #inp{flex:1;border:1px solid var(--line);border-radius:22px;padding:10px 14px;font-size:.92rem}
+  #send{width:42px;height:42px;border-radius:50%;border:0;background:var(--teal);color:#fff;cursor:pointer;font-size:16px}
+  @media (prefers-reduced-motion:no-preference){ .m,.ticket{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}} }
+</style>
+</head>
 <body>
-<nav>VALESKI<span>.</span></nav>
-<div class="hero">
-<h1><i>Valeski</i><br><b>Larabi</b><br><i>Designer</i></h1>
-<p style="opacity:.6;max-width:400px">Designer graphique basé à Abidjan. Affiches, identités, visuels qui claquent.</p>
-<a class="btn" href="https://codepen.io/Valeski-Larabi" target="_blank">Voir CodePen →</a>
+<header id="brand">Dental front desk assistant</header>
+
+<section class="hero">
+  <h1>A simpler dental front desk, anywhere in the world.</h1>
+  <p>Answers the questions patients ask most (insurance, fees, hours, urgent visits), even several in one message, and passes every request to your team with the details they need.</p>
+</section>
+
+<div class="cards">
+  <div class="card"><h2>Set up for your practice</h2><p>Clinic name, city, address, hours and accepted plans come from the link: <code>?clinic=Smile+Dental&amp;city=Austin&amp;ins=Delta+Dental,Cigna</code></p></div>
+  <div class="card"><h2>Understands more than one question</h2><p>"My son broke a tooth, do you take Delta Dental?" gets an answer to both, then a request to your team.</p></div>
+  <div class="card"><h2>Clear limits</h2><p>No diagnosis, no treatment advice. It never confirms a plan or a price you did not set. It asks for a name and phone number only, not medical details.</p></div>
 </div>
-<div class="grid">
-<div class="card lime"><h3>Affiches</h3><p>Concerts, soirées</p></div>
-<div class="card"><h3>Identité</h3><p>Logos, branding</p></div>
-<div class="card"><h3>Social Media</h3><p>Posts Instagram</p></div>
-<div class="card"><h3>Abidjan</h3><p>Disponible pour projets</p></div>
-</div>
-<div class="foot"><div style="font-size:40px;font-weight:800">Disponible<br>pour <span style="color:#CCFF00">projets</span></div></div>
-</body></html>
+
+<div class="price"><div>
+  <b>$197 / month</b><span>or $497 setup + $97 / month. No contract.</span>
+</div></div>
+
+<footer id="foot">Demo. In this demo, requests are not sent anywhere: the card shown at the end of the chat is what your front desk would receive.</footer>
+
+<button id="fab" aria-label="Open chat">&#128172;</button>
+<section id="panel" aria-label="Chat with the front desk assistant">
+  <div class="ph"><div><b id="ptitle">Front desk</b><small id="psub"></small></div><button id="x" aria-label="Close chat">&#10005;</button></div>
+  <div id="log" aria-live="polite"></div>
+  <form id="f" autocomplete="off">
+    <input id="inp" type="text" placeholder="Type your question..." aria-label="Your message">
+    <button id="send" aria-label="Send">&#10148;</button>
+  </form>
+</section>
+
+<script>
+/* ---------- CONFIG ---------- */
+const ENDPOINT = ""; // Google Apps Script web app URL (see apps-script.gs). Empty = demo mode: nothing is sent or logged.
+const LOG_MODE = "full"; // "full": masked message text is logged (testing). "intents": topics only, no text (real clinics). "off": nothing logged.
+const q = new URLSearchParams(location.search);
+const cfg = {
+  clinic: q.get("clinic") || "Smile Dental Studio",
+  city:   q.get("city")   || "Austin",
+  addr:   q.get("addr")   || "123 Main Street (sample address)",
+  hours:  q.get("hours")  || "Mon-Fri 8am-5pm, Sat 9am-1pm (sample hours)",
+  phone:  q.get("phone") || "",
+  ins:    (q.get("ins")||"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean)
+};
+const FEES = [
+  ["Exam and cleaning","$90 - $150"],
+  ["Filling","$120 - $300"],
+  ["Whitening","$300 - $600"]
+]; // sample ranges: each clinic sets its own
+
+document.title = cfg.clinic + " - front desk assistant";
+document.getElementById("brand").textContent = cfg.clinic + " - front desk assistant";
+document.getElementById("ptitle").textContent = cfg.clinic;
+document.getElementById("psub").textContent = cfg.city + " - virtual front desk";
+
+/* ---------- helpers ---------- */
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++)m[i]=[i];for(let j=0;j<=b.length;j++)m[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return m[a.length][b.length];}
+function prep(t){const n=t.toLowerCase().replace(/'/g,"").replace(/[^a-z0-9 ]/g," ");const tk=n.split(/\s+/).filter(Boolean);return {tk,nf:" "+tk.join(" ")+" "};}
+function hasf(p,list){
+  if(has(p,list)) return true;
+  return list.some(w=>{
+    if(!w.includes(" ")) return false;
+    const ws=w.split(" ");
+    if(ws.join("").length<6) return false;
+    for(let i=0;i+ws.length<=p.tk.length;i++){
+      if(ws.every((x,j)=>{const t=p.tk[i+j];return t===x||(x.length>=3&&lev(t,x)<=1);})) return true;
+    }
+    return false;
+  });
+}
+function has(p,list){
+  return list.some(w=>{
+    if(w.includes(" ")) return p.nf.includes(" "+w+" ");
+    return p.tk.some(t=>t===w || (w.length>=5 && (t.startsWith(w) || lev(t,w)<=1)));
+  });
+}
+const CARRIERS={delta:"Delta Dental",cigna:"Cigna",aetna:"Aetna",metlife:"MetLife",humana:"Humana",guardian:"Guardian",anthem:"Anthem",ameritas:"Ameritas",medicaid:"Medicaid",medicare:"Medicare",bcbs:"Blue Cross",principal:"Principal"};
+function carrierIn(p){for(const k in CARRIERS){if(has(p,[k]))return CARRIERS[k];}return null;}
+
+/* ---------- intents ---------- */
+const SEVERE=["cant breathe","trouble breathing","difficulty breathing","trouble swallowing","difficulty swallowing","heavy bleeding","wont stop bleeding","face swollen","swollen face","swelling in my face","knocked out"];
+const URGENT=["toothache","pain","hurts","hurt","broke","broken","chipped","cracked","emergency","urgent","swollen","swelling","abscess","bleeding","infection","lost filling","fell out","able to sleep","cant sleep","keeps me up","kept me up","throbbing","unbearable","severe pain","fever","tooth ache","ache","aches","aching","hurting","killing me","agony","excruciating","bad pain","terrible pain","mal aux dents","mal de dents","douleur","dolor","duele"];
+const INS=["insurance","insured","coverage","covered","ppo","hmo","accept","take my plan","in network"];
+const FEESW=["price","prices","cost","costs","fee","fees","how much","expensive","afford","cash","payment","pay"];
+const HOURSW=["hours","open","opening","closing","closed","what time","weekend","saturday","sunday","late"];
+const ADDRW=["address","location","directions","parking","where are you","located"];
+const BOOKW=["book","appointment","schedule","availability","available","checkup","check up","visit","new patient","see a dentist","see the dentist"];
+const TREATW=["whitening","veneers","implants","braces","invisalign","filling","fillings","crown","crowns","root canal","root canals","extraction","extractions"];
+const HUMANW=["human","real person","speak to someone","talk to someone","call me","receptionist","staff","speak to a person","talk to a person","speak with a person","speak with someone","speak to somebody"];
+const CANCELW=["cancel","reschedule","rebook","change my appointment","move my appointment"];
+const WALKW=["walk in","walk ins","walkin","walkins"];
+const CONCERNW=["problem","issue","concern","sensitive","sensitivity","poking","loose","lost a filling","lost my filling","filling came out","filling fell out","crown fell off","crown came off","fell off","came off"];
+const RESUME={name:"Back to your request: what's your first name?",phone:"Back to your request: what's the best phone number to reach you?",when:"Back to your request: when is best to call you or to see the dentist?"};
+const GREETW=["hi","hello","hey","good morning","good afternoon"];
+const THANKS=["thanks","thank you","thx"];
+const NOW=["no thanks","no thank you","not now","cancel","stop","skip","never mind"];
+
+/* ---------- state ---------- */
+const st={mode:"chat",reasons:[],urgent:false,carrier:null,name:"",phone:"",when:"",child:false};
+if(ENDPOINT){ document.getElementById("foot").textContent="Demo. Messages and requests are recorded to improve the assistant. Please use fake names and numbers, never real personal or medical details."; }
+
+/* ---------- sending and logging ---------- */
+const SID=Math.random().toString(36).slice(2,10);
+const TXT={"Content-Type":"text/plain;charset=utf-8"};
+function mask(t){return t.replace(/[\w.+-]+@[\w-]+\.[\w.]+/g,"[email]").replace(/\+?\d[\d\s().-]{5,}\d/g,"[number]").slice(0,300);}
+function track(text,r,fromChip){
+  if(!ENDPOINT||LOG_MODE==="off")return;
+  const rec={type:"msg",sid:SID,clinic:cfg.clinic,tags:r.tags||[],urgent:!!r.warn,fallback:!!r.fallback,chip:!!fromChip,text:LOG_MODE==="full"?mask(text):""};
+  fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:TXT,body:JSON.stringify(rec)}).catch(()=>{});
+}
+function sendLead(payload){
+  const opt={method:"POST",headers:TXT,body:JSON.stringify(payload)};
+  return fetch(ENDPOINT,opt).then(r=>r.json()).then(j=>(j&&j.ok)?"ok":"fail")
+    .catch(()=>fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:TXT,body:opt.body}).then(()=>"unconfirmed").catch(()=>"fail"));
+}
+const log=document.getElementById("log"), inp=document.getElementById("inp");
+
+function add(text,cls){const d=document.createElement("div");d.className="m "+cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function note(text){const d=document.createElement("div");d.className="note";d.textContent=text;log.appendChild(d);}
+function chips(list){const c=document.createElement("div");c.className="qr";list.forEach(l=>{const b=document.createElement("button");b.type="button";b.textContent=l;b.onclick=()=>{c.remove();handle(l,true)};c.appendChild(b)});log.appendChild(c);log.scrollTop=log.scrollHeight;}
+function addReason(r){if(!st.reasons.includes(r))st.reasons.push(r);}
+const MAIN_CHIPS=["Book appointment","Dental emergency","Fees","Address & hours","Insurance"];
+
+/* ---------- brain ---------- */
+function answer(text){
+  const p=prep(text); const out=[]; const tags=[]; let warn=false, askName=false;
+  const severe=has(p,SEVERE);
+  const urgent=severe||has(p,URGENT)||has(p,["dental emergency"]);
+  st.child=st.child||has(p,["son","daughter","child","kid","baby"]);
+  const car=carrierIn(p); if(car) st.carrier=car;
+  const wantsIns=hasf(p,INS)||!!car;
+
+  if(urgent){
+    tags.push("urgent"); st.urgent=true; addReason("Urgent visit"+(st.child?" (child)":""));
+    out.push("That sounds like it needs a prompt look from the dentist. I can't assess it or give treatment advice here, so I'll flag your request as priority for the front desk.");
+    out.push("If you have trouble breathing or swallowing, heavy bleeding, or swelling spreading to your face or neck, call 911 or go to the nearest ER now.");
+    warn=true; askName=true;
+  }
+  if(wantsIns){ tags.push("insurance");
+    addReason("Insurance question"+(st.carrier?" ("+st.carrier+")":""));
+    if(st.carrier){
+      const ok=cfg.ins.some(x=>st.carrier.toLowerCase().includes(x)||x.includes(st.carrier.toLowerCase().split(" ")[0]));
+      out.push(ok
+        ? st.carrier+" is one of the plans we work with. Your exact benefits depend on your specific plan, so the front desk will verify them before your visit."
+        : "I can't confirm from here whether "+st.carrier+" is accepted, because it depends on the specific plan. The front desk will verify it for you.");
+    } else {
+      out.push("Coverage depends on your specific plan. Tell me the name of your insurer and the front desk will verify it for you.");
+    }
+    askName=true;
+  }
+  if(hasf(p,FEESW)){ tags.push("fees");
+    addReason("Fees");
+    out.push("Sample fee ranges (each clinic sets its own):\n"+FEES.map(f=>"- "+f[0]+": "+f[1]).join("\n")+"\nThe final cost depends on your exam. The front desk can give you a written estimate.");
+  }
+  if(hasf(p,HOURSW)){ tags.push("hours"); out.push("Hours: "+cfg.hours+"."); }
+  if(hasf(p,ADDRW)){ tags.push("address"); out.push("Address: "+cfg.addr+", "+cfg.city+"."); }
+  if(hasf(p,TREATW)){ tags.push("treatment");
+    addReason("Treatment question");
+    out.push("We can talk you through treatments like fillings, cleanings, whitening, veneers and implants. The dentist decides what suits you after an exam, so I'll pass your question to the team.");
+    askName=true;
+  }
+  if(hasf(p,BOOKW)&&!hasf(p,CANCELW)){ tags.push("booking"); addReason("Appointment request"); out.push("Happy to pass an appointment request to the front desk."); askName=true; }
+  if(has(p,CONCERNW)&&!urgent&&!p.nf.includes(" no problem ")){ tags.push("concern"); addReason("Dental concern"); out.push("I can't assess a dental problem here, so I'll pass it to the front desk. If it involves severe pain, swelling or bleeding, tell me and I'll mark it priority."); askName=true; }
+  if(hasf(p,CANCELW)){ tags.push("cancel"); addReason("Cancel or reschedule"); out.push("To cancel or reschedule, I'll pass your request to the front desk."); askName=true; }
+  if(hasf(p,WALKW)){ tags.push("walkin"); addReason("Walk-in question"); out.push("Walk-in availability depends on the day and the schedule, so I'll pass your question to the front desk."); askName=true; }
+  if(hasf(p,HUMANW)){ tags.push("human"); addReason("Asked to speak with staff"); out.push("I'll ask the front desk to contact you."); askName=true; }
+
+  if(!out.length){
+    if(has(p,THANKS)) return {text:"You're welcome. Anything else?",chips:true,tags:["thanks"]};
+    if(has(p,GREETW)&&p.tk.length<=4) return {text:"Hello, and welcome to "+cfg.clinic+". I can answer questions about insurance, fees, hours and urgent visits, and send requests to the front desk.",chips:true,tags:["greeting"]};
+    addReason("Other question");
+    return {text:"I'm not sure I can answer that one correctly, so I'd rather not guess. I can send it to the front desk instead.",askName:true,fallback:true,tags:["fallback"]};
+  }
+  return {text:out.join("\n\n"),warn,askName,chips:!askName,tags};
+}
+
+function isStop(text){ const p=prep(text); return has(p,NOW)&&p.tk.length<=4; }
+function resetFlow(){ st.mode="chat";st.reasons=[];st.urgent=false;st.carrier=null;st.child=false;st.name="";st.phone="";st.when=""; }
+
+function interrupts(text){
+  const p=prep(text);
+  if(has(p,SEVERE)||has(p,URGENT)) return true;
+  if(st.mode==="when") return false;
+  const intent=[INS,FEESW,HOURSW,ADDRW,BOOKW,TREATW,HUMANW,CANCELW,WALKW].some(l=>hasf(p,l));
+  return intent&&(text.includes("?")||p.tk.length>=5);
+}
+
+function handle(text,fromChip){
+  text=text.trim(); if(!text)return;
+  add(text,"me");
+  let resume=null;
+  if(st.mode!=="chat"&&!isStop(text)&&interrupts(text)){ resume=st.mode; st.mode="chat"; }
+  const reply=(t,cls)=>{const ty=add("Typing...","bot typing");setTimeout(()=>{ty.remove();add(t,"bot"+(cls?" "+cls:""));},450);};
+
+  if(st.mode==="chat"){
+    if(fromChip){ text = ({"Book appointment":"I want to book an appointment","Dental emergency":"dental emergency","Address & hours":"address and hours","Insurance":"insurance question"})[text]||text; }
+    const ph=text.match(/(\+?\d[\d\s().-]{8,}\d)/); if(ph) st.phone=ph[1].trim();
+    const nm=text.match(/(?:my name is|my name|i am|i'm|im|this is)\s+([A-Za-z'-]+)/i);
+    if(nm){const f=nm[1];st.name=f.charAt(0).toUpperCase()+f.slice(1).toLowerCase();}
+    const r=answer(text);
+    track(text,r,fromChip);
+    if(r.fallback&&(nm||ph)){
+      st.reasons=st.reasons.filter(x=>x!=="Other question");
+      const ty0=add("Typing...","bot typing");
+      setTimeout(()=>{ty0.remove();add("Thanks"+(st.name?", "+st.name:"")+". How can I help you today?","bot");chips(MAIN_CHIPS);},450);
+      return;
+    }
+    const ty=add("Typing...","bot typing");
+    setTimeout(()=>{
+      ty.remove(); add(r.text,"bot"+(r.warn?" warn":""));
+      if(r.askName){
+        if(st.name&&st.phone){ st.mode="when"; add("Thanks, "+st.name+". When is best to call you or to see the dentist? (for example: tomorrow morning)","bot"); }
+        else if(st.name){ st.mode="phone"; add("Thanks, "+st.name+". What's the best phone number to reach you?","bot"); }
+        else { st.mode="name"; add("To pass this to the front desk, what's your first name? (Please don't include medical details here.)","bot"); }
+      }
+      else if(resume){ st.mode=resume; add(RESUME[resume],"bot"); }
+      else if(r.chips){ chips(MAIN_CHIPS); }
+    },450);
+    return;
+  }
+  if(isStop(text)){ resetFlow(); reply("No problem, nothing was sent. What else can I help with?"); setTimeout(()=>chips(MAIN_CHIPS),500); return; }
+  if(st.mode==="name"){
+    if(text.replace(/\D/g,"").length>=9){ st.phone=text.trim(); reply("Thanks. And what's your first name?"); return; }
+    const cleaned=text.replace(/^(my name is|my name|name is|i am|i'm|im|it's|its|this is|call me)\s+/i,"").replace(/[^A-Za-z' -]/g,"").trim();
+    const first=cleaned.split(/\s+/)[0]||"there";
+    st.name=first.charAt(0).toUpperCase()+first.slice(1).toLowerCase();
+    if(st.phone){ st.mode="when"; reply("Thanks, "+st.name+". When is best to call you or to see the dentist? (for example: tomorrow morning)"); return; }
+    st.mode="phone"; reply("Thanks, "+st.name+". What's the best phone number to reach you?"); return;
+  }
+  if(st.mode==="phone"){
+    if(text.replace(/\D/g,"").length<10){ reply("That doesn't look like a full phone number. Please include the area code, or say \"skip\" to cancel."); return; }
+    st.phone=text; st.mode="when"; reply("And when is best to call you or to see the dentist? (for example: tomorrow morning)"); return;
+  }
+  if(st.mode==="when"){
+    st.when=text; st.mode="chat";
+    const ty=add("Typing...","bot typing");
+    setTimeout(()=>{ty.remove();finish();},450); return;
+  }
+}
+
+function finish(){
+  const payload={type:"lead",id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),sid:SID,clinic:cfg.clinic,city:cfg.city,priority:st.urgent?"URGENT":(st.reasons.includes("Dental concern")?"To review soon":"Normal"),name:st.name,phone:st.phone,preferred_time:st.when,reasons:st.reasons.slice(),insurer_mentioned:st.carrier,for_child:st.child,received_at:new Date().toISOString()};
+  st.reasons=[];st.urgent=false;st.carrier=null;st.child=false;st.name="";st.phone="";st.when="";
+  const urgent=payload.priority==="URGENT";
+  const call=cfg.phone?" at "+cfg.phone:"";
+  const show=(status)=>{
+    if(status==="fail"){
+      add("Sorry, we could not send your request. Please call the office"+call+(urgent?" right away":"")+". If this is an emergency, call 911.","bot warn");
+    } else {
+      add(urgent
+        ? "Thank you, "+payload.name+". Your request is marked priority and the front desk will call you as soon as possible."
+        : "Thank you, "+payload.name+". The front desk will contact you "+(payload.preferred_time?"("+payload.preferred_time+") ":"")+"to follow up.","bot");
+      if(status==="unconfirmed") add("We could not confirm delivery. If nobody contacts you soon, please call the office"+call+".","bot");
+    }
+    const label={demo:"What your front desk receives (demo, not actually sent)",ok:"Sent to the front desk",unconfirmed:"Sent, delivery not confirmed",fail:"NOT sent"}[status];
+    const t=document.createElement("div");t.className="ticket";
+    const hh=document.createElement("h3");hh.textContent=label;t.appendChild(hh);
+    const dl=document.createElement("dl");
+    [["Priority",payload.priority],["Name",payload.name],["Phone",payload.phone],["Preferred time",payload.preferred_time],["Reason",payload.reasons.join(", ")||"General"]].forEach(([k,v])=>{
+      const x=document.createElement("dt");x.textContent=k;const y=document.createElement("dd");y.textContent=v;if(k==="Priority"&&v==="URGENT")y.className="pri";dl.appendChild(x);dl.appendChild(y);});
+    t.appendChild(dl);log.appendChild(t);log.scrollTop=log.scrollHeight;
+    setTimeout(()=>chips(MAIN_CHIPS),500);
+  };
+  if(!ENDPOINT){ show("demo"); return; }
+  const w=add("Sending your request...","bot typing");
+  sendLead(payload).then(s=>{ w.remove(); show(s); });
+}
+
+/* ---------- UI ---------- */
+const panel=document.getElementById("panel");
+function open(){panel.classList.add("open");if(!log.children.length)start();inp.focus();}
+function start(){
+  add("Hello, and welcome to "+cfg.clinic+". I'm the virtual front desk assistant. I can answer questions about insurance, fees, hours and urgent visits, and send requests to the front desk.","bot");
+  note("I don't diagnose or give treatment advice. Please don't share medical details in this chat.");
+  if(ENDPOINT&&LOG_MODE==="full") note("Demo: messages and requests are recorded to improve the assistant. Please use fake details.");
+  chips(MAIN_CHIPS);
+}
+document.getElementById("fab").onclick=()=>panel.classList.contains("open")?panel.classList.remove("open"):open();
+document.getElementById("x").onclick=()=>panel.classList.remove("open");
+document.getElementById("f").onsubmit=e=>{e.preventDefault();const v=inp.value;inp.value="";handle(v,false);};
+</script>
+</body>
+</html>
