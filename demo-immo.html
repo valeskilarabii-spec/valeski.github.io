@@ -220,7 +220,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 
   function recap() {
     const projet = {achat:'Achat', location:'Location', tous:'Visite des biens'}[state.project] || state.project;
-    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${state.budget || 'non précisé'}\n• Ville : ${state.area || 'non précisée'}${state.chosen ? '\n• Bien : ' + state.chosen : ''}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
+    const b = moneyNumber(state.budget);
+    const budgetTxt = b !== null ? fmt(b) + (state.project === 'location' ? ' €/mois' : ' €') : (state.budget || 'non précisé');
+    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${budgetTxt}\n• Ville : ${state.area || 'non précisée'}${state.chosen ? '\n• Bien : ' + state.chosen : ''}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
     state.step = 'done';
     quick(['Nouvelle recherche']);
   }
@@ -254,6 +256,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         state.budget = text; askArea(); return;
 
       case 'area':
+        if (/^\d{1,2}$/.test(text)) {
+          add('Pour quelle ville ? Par exemple « Paris ' + text + ' » ou « Lyon ' + text + ' ».', 'bot');
+          quick(['Peu importe']);
+          return;
+        }
         state.area = text; showListings(); return;
 
       case 'next':
