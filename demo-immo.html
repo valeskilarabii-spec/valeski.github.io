@@ -57,7 +57,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   const messages = document.getElementById('messages');
   const input = document.getElementById('input');
   const form = document.getElementById('chatForm');
-  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:''});
+  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:'', shown:[], chosen:''});
   let state = fresh();
   let history = [];
 
@@ -91,6 +91,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   ];
 
   const fmt = n => Number(n).toLocaleString('fr-FR');
+  const isPlace = t => { const q = norm(t); return q.length >= 3 && listings.some(x => norm(x.city).includes(q) || norm(x.area).includes(q) || q.includes(norm(x.city))); };
   const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/(\d)\s*(?:eme|er|e)\b/g, '$1').replace(/\s+/g, '').trim();
 
@@ -182,6 +183,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   }
 
   function showListings() {
+    state.chosen = '';
     const mode = state.project;
     const max = mode === 'tous' ? null : moneyNumber(state.budget);
     const q = norm(state.area);
@@ -191,13 +193,14 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
     const inArea = x => anyCity || norm(x.area).includes(q) || norm(x.city).includes(q);
     const line = (x, i) => `${i + 1}. ${x.title} — ${x.area}\n${x.detail}\n${x.mode === 'location' ? fmt(x.price) + ' €/mois' : fmt(x.price) + ' €'}`;
     const list = arr => {
-      const shown = arr.slice(0, 6).map(line).join('\n\n');
+      state.shown = arr.slice(0, 6);
+      const shown = state.shown.map(line).join('\n\n');
       return arr.length > 6 ? shown + `\n\n… et ${arr.length - 6} autre(s) bien(s).` : shown;
     };
 
     const found = listings.filter(x => inMode(x) && inBudget(x) && inArea(x));
     if (found.length) {
-      add(`Voici ${found.length} bien(s) (annonces fictives pour la démo) :\n\n` + list(found), 'bot');
+      add(`Voici ${found.length} bien${found.length > 1 ? 's' : ''} (annonces fictives pour la démo) :\n\n` + list(found) + '\n\nTapez le numéro d’un bien pour le choisir.', 'bot');
     } else {
       const sameCity = anyCity ? [] : listings.filter(x => inMode(x) && inBudget(x) && q.includes(norm(x.city)));
       const alt = listings.filter(x => inMode(x) && inBudget(x));
@@ -217,7 +220,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 
   function recap() {
     const projet = {achat:'Achat', location:'Location', tous:'Visite des biens'}[state.project] || state.project;
-    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${state.budget || 'non précisé'}\n• Ville : ${state.area || 'non précisée'}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
+    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${state.budget || 'non précisé'}\n• Ville : ${state.area || 'non précisée'}${state.chosen ? '\n• Bien : ' + state.chosen : ''}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
     state.step = 'done';
     quick(['Nouvelle recherche']);
   }
@@ -254,7 +257,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         state.area = text; showListings(); return;
 
       case 'next':
-        if (text.length < 20 && moneyNumber(text) !== null && !/demande|contact/.test(low)) {
+        if (/^\d{1,2}$/.test(text)) {
+          const x = state.shown[Number(text) - 1];
+          if (x) {
+            state.chosen = `${x.title} — ${x.area} (${fmt(x.price)}${x.mode === 'location' ? ' €/mois' : ' €'})`;
+            add(`Vous avez choisi : ${state.chosen}.\nSouhaitez-vous que je transmette votre demande à un conseiller ?`, 'bot');
+          } else {
+            add(`Tapez un numéro entre 1 et ${state.shown.length}, ou choisissez une option.`, 'bot');
+          }
+          quick(NEXT);
+        } else if (text.length < 20 && moneyNumber(text) >= 100 && !/demande|contact/.test(low)) {
           state.budget = text; showListings();
         } else if (/affiner/.test(low)) {
           state.step = 'refine';
@@ -267,8 +279,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
           state.step = 'done';
           add('Merci d’avoir utilisé Horizon. À bientôt !', 'bot');
           quick(['Nouvelle recherche']);
+        } else if (isPlace(text)) {
+          state.area = text; showListings();
         } else {
-          add('Choisissez une option ci-dessous.', 'bot');
+          add('Choisissez une option ci-dessous, ou tapez une ville pour relancer la recherche.', 'bot');
           quick(NEXT);
         }
         return;
