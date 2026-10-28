@@ -57,12 +57,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   const messages = document.getElementById('messages');
   const input = document.getElementById('input');
   const form = document.getElementById('chatForm');
-  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:'', shown:[], chosen:''});
+  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:'', shown:[], chosen:'', chosenGeo:null});
   let state = fresh();
   let history = [];
+  let locToken = 0;
 
-  const START = ['Acheter', 'Louer', 'Voir les biens'];
-  const NEXT = ['Affiner ma recherche', 'Préparer une demande', 'Terminer'];
+  const START = ['Acheter', 'Louer', 'Voir les biens', 'Près de moi'];
+  const NEXT = ['Affiner ma recherche', 'Préparer une demande', 'Près de moi', 'Terminer'];
+  const NEXT_CHOSEN = ['Itinéraire', 'Préparer une demande', 'Affiner ma recherche', 'Terminer'];
+  const NEAR = /pr[eè]s de moi|autour de moi|ma position|\bgps\b/;
 
   // Annonces fictives, réparties sur plusieurs villes
   const listings = [
@@ -90,7 +93,26 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
     {title:'T2 proche Garonne', city:'Toulouse', area:'Toulouse Saint-Cyprien', price:178000, mode:'achat', detail:'2 pièces · 42 m²'}
   ];
 
+  // Positions approximatives (par quartier) pour la recherche « près de moi » et l'itinéraire
+  const COORDS = {
+    'Lyon 6':[45.769,4.850], 'Lyon 3':[45.760,4.860], 'Lyon 7':[45.748,4.842], 'Villeurbanne':[45.767,4.880],
+    'Paris 15':[48.841,2.300], 'Paris 11':[48.859,2.380], 'Paris 18':[48.892,2.348], 'Paris 5 Quartier Latin':[48.846,2.345],
+    'Bordeaux Chartrons':[44.855,-0.570], 'Bordeaux Centre':[44.838,-0.579],
+    'Marseille 8':[43.255,5.385], 'Marseille 7':[43.285,5.355],
+    'Toulouse Capitole':[43.604,1.444], 'Toulouse Centre':[43.598,1.452], 'Toulouse Saint-Cyprien':[43.597,1.430],
+    'Nantes Centre':[47.218,-1.553], 'Lille Vieux-Lille':[50.640,3.063], 'Lille Wazemmes':[50.627,3.050],
+    'Nice Centre':[43.700,7.268], 'Strasbourg Centre':[48.583,7.748], 'Montpellier Antigone':[43.608,3.893]
+  };
+  listings.forEach(x => { const c = COORDS[x.area]; if (c) { x.lat = c[0]; x.lng = c[1]; } });
+
   const fmt = n => Number(n).toLocaleString('fr-FR');
+  const priceTxt = x => fmt(x.price) + (x.mode === 'location' ? ' €/mois' : ' €');
+  const dist = (a, b, c, d) => {
+    const R = 6371, t = v => v * Math.PI / 180;
+    const h = Math.sin(t(c - a) / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(t(d - b) / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  };
+  const fmtKm = k => k < 10 ? k.toFixed(1).replace('.', ',') + ' km' : fmt(Math.round(k)) + ' km';
   const isPlace = t => { const q = norm(t); return q.length >= 3 && listings.some(x => norm(x.city).includes(q) || norm(x.area).includes(q) || q.includes(norm(x.city))); };
   const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/(\d)\s*(?:eme|er|e)\b/g, '$1').replace(/\s+/g, '').trim();
@@ -179,11 +201,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   function askArea() {
     state.step = 'area';
     add('Quelle ville ou quel quartier ? Par exemple : Lyon 6, Paris 15, Bordeaux, Marseille, Nice… ou « peu importe ».', 'bot');
-    quick(['Peu importe']);
+    quick(['Peu importe', 'Près de moi']);
   }
 
   function showListings() {
-    state.chosen = '';
+    state.chosen = ''; state.chosenGeo = null;
     const mode = state.project;
     const max = mode === 'tous' ? null : moneyNumber(state.budget);
     const q = norm(state.area);
@@ -218,6 +240,40 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
     quick(NEXT);
   }
 
+  function nearby() {
+    if (!navigator.geolocation) {
+      add('La localisation n’est pas disponible sur cet appareil.', 'bot');
+      if (!state.project) state.project = 'tous';
+      askArea(); return;
+    }
+    const my = ++locToken;
+    state.step = 'locating';
+    add('Je cherche votre position… Autorisez la localisation si votre navigateur la demande, ou tapez une ville pour continuer sans.', 'bot');
+    navigator.geolocation.getCurrentPosition(pos => {
+      if (my !== locToken) return;
+      const la = pos.coords.latitude, lo = pos.coords.longitude; // la position n’est ni envoyée ni enregistrée
+      const mode = state.project || 'tous';
+      const max = mode === 'tous' ? null : moneyNumber(state.budget);
+      let pool = listings.filter(x => (mode === 'tous' || x.mode === mode) && (max === null || x.price <= max));
+      if (!pool.length) pool = listings.filter(x => mode === 'tous' || x.mode === mode);
+      pool = pool.map(x => Object.assign({}, x, {km: dist(la, lo, x.lat, x.lng)})).sort((a, b) => a.km - b.km);
+      state.project = mode; state.chosen = ''; state.chosenGeo = null;
+      state.shown = pool.slice(0, 6);
+      const lines = state.shown.map((x, i) => `${i + 1}. ${x.title} — ${x.area}\n${x.detail}\n${priceTxt(x)} · à ${fmtKm(x.km)}`).join('\n\n');
+      const intro = pool[0].km > 150
+        ? 'Aucun bien à moins de 150 km de votre position. Voici les plus proches (annonces fictives) :'
+        : 'Voici les biens les plus proches de vous (annonces fictives) :';
+      add(intro + '\n\n' + lines + '\n\nTapez le numéro d’un bien pour le choisir.', 'bot');
+      state.step = 'next';
+      quick(NEXT);
+    }, () => {
+      if (my !== locToken) return;
+      add('Je n’ai pas pu obtenir votre position (autorisation refusée ou indisponible).', 'bot');
+      if (!state.project) state.project = 'tous';
+      askArea();
+    }, {timeout: 10000, maximumAge: 300000});
+  }
+
   function recap() {
     const projet = {achat:'Achat', location:'Location', tous:'Visite des biens'}[state.project] || state.project;
     const b = moneyNumber(state.budget);
@@ -234,6 +290,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 
     switch (state.step) {
       case 'project':
+        if (NEAR.test(low)) {
+          state.project = /louer|location/.test(low) ? 'location' : /acheter|achat/.test(low) ? 'achat' : 'tous';
+          nearby(); return;
+        }
         if (/louer|location/.test(low)) {
           state.project = 'location'; state.step = 'budget';
           add('Quel loyer maximum par mois ? (ex : 900)', 'bot');
@@ -256,6 +316,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         state.budget = text; askArea(); return;
 
       case 'area':
+        if (NEAR.test(low)) { nearby(); return; }
         if (/^\d{1,2}$/.test(text)) {
           add('Pour quelle ville ? Par exemple « Paris ' + text + ' » ou « Lyon ' + text + ' ».', 'bot');
           quick(['Peu importe']);
@@ -267,14 +328,27 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         if (/^\d{1,2}$/.test(text)) {
           const x = state.shown[Number(text) - 1];
           if (x) {
-            state.chosen = `${x.title} — ${x.area} (${fmt(x.price)}${x.mode === 'location' ? ' €/mois' : ' €'})`;
-            add(`Vous avez choisi : ${state.chosen}.\nSouhaitez-vous que je transmette votre demande à un conseiller ?`, 'bot');
+            state.chosen = `${x.title} — ${x.area} (${priceTxt(x)})`;
+            state.chosenGeo = {lat: x.lat, lng: x.lng};
+            add(`Vous avez choisi : ${state.chosen}.\nSouhaitez-vous l’itinéraire, ou que je transmette votre demande à un conseiller ?`, 'bot');
+            quick(NEXT_CHOSEN);
           } else {
             add(`Tapez un numéro entre 1 et ${state.shown.length}, ou choisissez une option.`, 'bot');
+            quick(NEXT);
           }
-          quick(NEXT);
         } else if (text.length < 20 && moneyNumber(text) >= 100 && !/demande|contact/.test(low)) {
           state.budget = text; showListings();
+        } else if (NEAR.test(low)) {
+          nearby();
+        } else if (/itin[ée]raire|y aller/.test(low)) {
+          if (state.chosenGeo) {
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${state.chosenGeo.lat},${state.chosenGeo.lng}&travelmode=driving`, '_blank', 'noopener');
+            add('J’ouvre l’itinéraire dans Google Maps. Si rien ne s’ouvre, autorisez les fenêtres pop-up pour ce site.', 'bot');
+            quick(NEXT_CHOSEN);
+          } else {
+            add('Choisissez d’abord un bien en tapant son numéro.', 'bot');
+            quick(NEXT);
+          }
         } else if (/affiner/.test(low)) {
           state.step = 'refine';
           add('Que souhaitez-vous modifier ?', 'bot');
@@ -309,6 +383,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         }
         return;
 
+      case 'locating':
+        locToken++;
+        if (!state.project) state.project = 'tous';
+        state.area = text; showListings(); return;
+
       case 'name':
         state.name = text.replace(/^(bonjour[, ]*)?(mon nom est|mon nom c['’]est|je m['’]appelle|moi c['’]est|c['’]est|je suis)\s+/i, '').trim() || text;
         state.step = 'contact';
@@ -339,7 +418,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
   form.addEventListener('submit', e => { e.preventDefault(); submitMessage(); });
   document.getElementById('resetBtn').addEventListener('click', start);
 
-  if (load()) restore(); else start();
+  if (load()) {
+    if (state.step === 'locating') state.step = state.shown.length ? 'next' : 'project';
+    restore();
+  } else start();
 })();
 </script>
 </body>
