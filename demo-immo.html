@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon — Assistant immobilier</title>
+<style>
+:root{--navy:#10243e;--blue:#1f5fa8;--gold:#d9962b;--ink:#172033;--muted:#5b6b82;--line:#dbe3ee}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:linear-gradient(#cfe0f1,#eef4fa 55%,#f7fafd);position:relative}
+body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:240px;pointer-events:none;z-index:0;opacity:.2;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'%3E%3Cg fill='%2310243e'%3E%3Crect x='0' y='120' width='60' height='100'/%3E%3Crect x='70' y='70' width='50' height='150'/%3E%3Crect x='130' y='100' width='70' height='120'/%3E%3Cpolygon points='210,220 210,110 250,80 290,110 290,220'/%3E%3Crect x='300' y='40' width='55' height='180'/%3E%3Crect x='365' y='90' width='65' height='130'/%3E%3Cpolygon points='440,220 440,120 480,90 520,120 520,220'/%3E%3Crect x='530' y='60' width='70' height='160'/%3E%3C/g%3E%3Cg fill='%23f6c76b'%3E%3Crect x='80' y='90' width='8' height='10'/%3E%3Crect x='100' y='90' width='8' height='10'/%3E%3Crect x='80' y='120' width='8' height='10'/%3E%3Crect x='145' y='120' width='8' height='10'/%3E%3Crect x='170' y='120' width='8' height='10'/%3E%3Crect x='235' y='130' width='10' height='12'/%3E%3Crect x='312' y='60' width='8' height='10'/%3E%3Crect x='332' y='60' width='8' height='10'/%3E%3Crect x='312' y='100' width='8' height='10'/%3E%3Crect x='380' y='110' width='8' height='10'/%3E%3Crect x='405' y='110' width='8' height='10'/%3E%3Crect x='475' y='135' width='10' height='12'/%3E%3Crect x='545' y='80' width='8' height='10'/%3E%3Crect x='570' y='80' width='8' height='10'/%3E%3C/g%3E%3C/svg%3E") repeat-x left bottom/auto 240px}
+header{position:relative;z-index:1;background:linear-gradient(130deg,#0b1a2f,#1f4f8f);color:#fff;padding:20px 24px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
+header strong{font-family:Georgia,"Times New Roman",serif;font-size:22px;letter-spacing:.5px}
+header strong i{color:var(--gold);font-style:normal}
+header span{font-size:14px;opacity:.85}
+main{position:relative;z-index:1;max-width:1120px;margin:34px auto;padding:0 18px;display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:start}
+.pitch h1{font-family:Georgia,"Times New Roman",serif;font-size:40px;line-height:1.15;margin:20px 0 14px;color:var(--navy);max-width:16em}
+.pitch p{font-size:17px;line-height:1.6;color:var(--muted);max-width:34em;margin:0 0 20px}
+.cities{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none}
+.cities li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:14px;color:var(--navy)}
+.chat{background:#fff;border-radius:18px;box-shadow:0 20px 50px #10243e26;border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;height:720px;max-height:calc(100vh - 110px);min-height:480px}
+.chathead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:600;color:var(--navy)}
+.chathead button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer}
+.chathead button:hover{border-color:var(--blue);color:var(--blue)}
+#messages{padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;background:#f6f9fc}
+.msg{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.bot{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.user{align-self:flex-end;background:var(--blue);color:#fff}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick button{border:1px solid #b6d0ee;background:#eef5fd;color:var(--blue);border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer}
+.quick button:hover{background:#dcebfa}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0;border:1px solid #c5d2e3;border-radius:999px;padding:12px 15px;font-size:14px}
+.composer button{border:0;border-radius:999px;background:var(--navy);color:#fff;padding:0 18px;font-weight:700;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(max-width:860px){main{grid-template-columns:1fr}.pitch h1{font-size:30px}}
+</style>
+</head>
+<body>
+<header><strong>Horizon<i>.</i></strong><span>Agence immobilière · Achat et location partout en France</span></header>
+<main>
+<section class="pitch">
+<h1>Trouvez le bien qui correspond à votre projet.</h1>
+<p>Dites à l’assistant si vous voulez acheter ou louer, votre budget et la ville qui vous intéresse. Il vous montre des biens et transmet votre demande à un conseiller.</p>
+<ul class="cities"><li>Lyon</li><li>Paris</li><li>Bordeaux</li><li>Marseille</li><li>Toulouse</li><li>Nantes</li><li>Lille</li><li>Nice</li><li>Strasbourg</li><li>Montpellier</li></ul>
+</section>
+<section class="chat" aria-label="Assistant immobilier">
+<div class="chathead"><span>Assistant Horizon</span><button type="button" id="resetBtn">Nouvelle conversation</button></div>
+<div id="messages" aria-live="polite"></div>
+<form class="composer" id="chatForm"><input id="input" placeholder="Écrivez votre message…" aria-label="Votre message" autocomplete="off"><button type="submit">Envoyer</button></form>
+</section>
+</main>
+<script>
+(() => {
+  const KEY = 'horizon_chat_v2';
+  const messages = document.getElementById('messages');
+  const input = document.getElementById('input');
+  const form = document.getElementById('chatForm');
+  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:''});
+  let state = fresh();
+  let history = [];
+
+  const START = ['Acheter', 'Louer', 'Voir les biens'];
+  const NEXT = ['Affiner ma recherche', 'Préparer une demande', 'Terminer'];
+
+  // Annonces fictives, réparties sur plusieurs villes
+  const listings = [
+    {title:'T2 lumineux', city:'Lyon', area:'Lyon 6', price:245000, mode:'achat', detail:'2 pièces · 46 m²'},
+    {title:'T3 proche commerces', city:'Lyon', area:'Lyon 3', price:325000, mode:'achat', detail:'3 pièces · 68 m²'},
+    {title:'Studio meublé', city:'Lyon', area:'Lyon 6', price:780, mode:'location', detail:'Studio · 25 m²'},
+    {title:'T2 rénové', city:'Villeurbanne', area:'Villeurbanne', price:920, mode:'location', detail:'2 pièces · 43 m²'},
+    {title:'T2 près du métro', city:'Paris', area:'Paris 15', price:489000, mode:'achat', detail:'2 pièces · 38 m²'},
+    {title:'Studio calme', city:'Paris', area:'Paris 11', price:1150, mode:'location', detail:'Studio · 24 m²'},
+    {title:'T3 en pierre', city:'Bordeaux', area:'Bordeaux Chartrons', price:410000, mode:'achat', detail:'3 pièces · 71 m²'},
+    {title:'T2 avec balcon', city:'Bordeaux', area:'Bordeaux Centre', price:890, mode:'location', detail:'2 pièces · 44 m²'},
+    {title:'T4 familial', city:'Marseille', area:'Marseille 8', price:395000, mode:'achat', detail:'4 pièces · 85 m²'},
+    {title:'T2 vue mer', city:'Marseille', area:'Marseille 7', price:870, mode:'location', detail:'2 pièces · 41 m²'},
+    {title:'T3 lumineux', city:'Toulouse', area:'Toulouse Capitole', price:315000, mode:'achat', detail:'3 pièces · 66 m²'},
+    {title:'Studio étudiant', city:'Toulouse', area:'Toulouse Centre', price:560, mode:'location', detail:'Studio · 20 m²'},
+    {title:'Maison avec jardin', city:'Nantes', area:'Nantes Centre', price:520000, mode:'achat', detail:'5 pièces · 110 m²'},
+    {title:'T2 rénové', city:'Lille', area:'Lille Vieux-Lille', price:780, mode:'location', detail:'2 pièces · 40 m²'},
+    {title:'T3 proche plage', city:'Nice', area:'Nice Centre', price:445000, mode:'achat', detail:'3 pièces · 62 m²'},
+    {title:'T2 meublé', city:'Strasbourg', area:'Strasbourg Centre', price:850, mode:'location', detail:'2 pièces · 45 m²'},
+    {title:'T3 résidence récente', city:'Montpellier', area:'Montpellier Antigone', price:298000, mode:'achat', detail:'3 pièces · 64 m²'}
+  ];
+
+  const fmt = n => Number(n).toLocaleString('fr-FR');
+  const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/(\d)\s*(?:eme|er|e)\b/g, '$1').replace(/\s+/g, '').trim();
+
+  function moneyNumber(value) {
+    const text = String(value || '').toLowerCase().trim();
+    const compact = text.replace(/\s/g, '').replace(/€|euros?/g, '').replace(/,/g, '.');
+    const match = compact.match(/\d+(?:\.\d+)?/);
+    if (!match) return null;
+    let amount = Number(match[0]);
+    if (/million|\d\s*m\b/.test(text)) amount *= 1000000;
+    else if (/\d\s*k\b|mille/.test(text)) amount *= 1000;
+    return Number.isFinite(amount) ? amount : null;
+  }
+
+  // ---- Mémoire des messages (localStorage, propre au navigateur du visiteur)
+  function save() {
+    if (history.length > 200) history = history.slice(-200);
+    try { localStorage.setItem(KEY, JSON.stringify({state, history})); } catch (e) {}
+  }
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (d && d.state && Array.isArray(d.history) && d.history.length) {
+        state = Object.assign(fresh(), d.state);
+        history = d.history;
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // ---- Affichage
+  const scroll = () => { messages.scrollTop = messages.scrollHeight; };
+  function drawMsg(text, who) {
+    const n = document.createElement('div');
+    n.className = 'msg ' + who;
+    n.textContent = text;
+    messages.appendChild(n);
+  }
+  function drawQuick(opts) {
+    const w = document.createElement('div');
+    w.className = 'quick';
+    opts.forEach(label => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.addEventListener('click', () => { input.value = label; submitMessage(); });
+      w.appendChild(b);
+    });
+    messages.appendChild(w);
+  }
+  function clearQuick() {
+    messages.querySelectorAll('.quick').forEach(e => e.remove());
+    history = history.filter(h => h.t !== 'quick');
+  }
+  function add(text, who) {
+    clearQuick();
+    drawMsg(text, who);
+    history.push({t:'msg', w:who, text});
+    save(); scroll();
+  }
+  function quick(opts) {
+    clearQuick();
+    drawQuick(opts);
+    history.push({t:'quick', opts});
+    save(); scroll();
+  }
+  function restore() {
+    messages.innerHTML = '';
+    history.forEach(h => h.t === 'msg' ? drawMsg(h.text, h.w) : drawQuick(h.opts));
+    scroll();
+  }
+  function start() {
+    state = fresh(); history = []; messages.innerHTML = '';
+    add('Bonjour 👋 Je suis l’assistant Horizon. Vous souhaitez acheter, louer, ou voir les biens ?', 'bot');
+    quick(START);
+  }
+  function restart() {
+    state = fresh();
+    add('C’est reparti. Vous souhaitez acheter, louer, ou voir les biens ?', 'bot');
+    quick(START);
+  }
+
+  // ---- Recherche
+  function askArea() {
+    state.step = 'area';
+    add('Quelle ville ou quel quartier ? Par exemple : Lyon 6, Paris 15, Bordeaux, Marseille, Nice… ou « peu importe ».', 'bot');
+    quick(['Peu importe']);
+  }
+
+  function showListings() {
+    const mode = state.project;
+    const max = mode === 'tous' ? null : moneyNumber(state.budget);
+    const q = norm(state.area);
+    const anyCity = !q || /^(peuimporte|partout|aucun|toutes?(lesvilles)?)$/.test(q);
+    const inMode = x => mode === 'tous' || x.mode === mode;
+    const inBudget = x => max === null || x.price <= max;
+    const inArea = x => anyCity || norm(x.area).includes(q) || norm(x.city).includes(q);
+    const line = (x, i) => `${i + 1}. ${x.title} — ${x.area}\n${x.detail}\n${x.mode === 'location' ? fmt(x.price) + ' €/mois' : fmt(x.price) + ' €'}`;
+    const list = arr => {
+      const shown = arr.slice(0, 6).map(line).join('\n\n');
+      return arr.length > 6 ? shown + `\n\n… et ${arr.length - 6} autre(s) bien(s).` : shown;
+    };
+
+    const found = listings.filter(x => inMode(x) && inBudget(x) && inArea(x));
+    if (found.length) {
+      add(`Voici ${found.length} bien(s) (annonces fictives pour la démo) :\n\n` + list(found), 'bot');
+    } else {
+      const alt = listings.filter(x => inMode(x) && inBudget(x));
+      if (alt.length) {
+        add(`Je n’ai rien trouvé pour « ${state.area} » avec ce budget. Voici des biens dans d’autres villes :\n\n` + list(alt), 'bot');
+      } else {
+        add('Aucun bien ne correspond à ce budget. Essayez avec un budget plus élevé.', 'bot');
+      }
+    }
+    state.step = 'next';
+    quick(NEXT);
+  }
+
+  function recap() {
+    const projet = {achat:'Achat', location:'Location', tous:'Visite des biens'}[state.project] || state.project;
+    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${state.budget || 'non précisé'}\n• Ville : ${state.area || 'non précisée'}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
+    state.step = 'done';
+    quick(['Nouvelle recherche']);
+  }
+
+  function process(raw) {
+    const text = raw.trim(), low = text.toLowerCase();
+
+    if (/nouvelle recherche|recommencer/.test(low)) { restart(); return; }
+
+    switch (state.step) {
+      case 'project':
+        if (/louer|location/.test(low)) {
+          state.project = 'location'; state.step = 'budget';
+          add('Quel loyer maximum par mois ? (ex : 900)', 'bot');
+        } else if (/acheter|achat/.test(low)) {
+          state.project = 'achat'; state.step = 'budget';
+          add('Quel budget maximum ? (ex : 300 000 ou 300k)', 'bot');
+        } else if (/voir|bien|tout/.test(low)) {
+          state.project = 'tous'; askArea();
+        } else {
+          add('Je peux vous aider à acheter, louer, ou voir les biens. Que choisissez-vous ?', 'bot');
+          quick(START);
+        }
+        return;
+
+      case 'budget':
+        if (moneyNumber(text) === null && !/peu importe|aucun|illimit/.test(low)) {
+          add('Je n’ai pas compris ce montant. Exemples : 300000, 300 000 ou 300k.', 'bot');
+          return;
+        }
+        state.budget = text; askArea(); return;
+
+      case 'area':
+        state.area = text; showListings(); return;
+
+      case 'next':
+        if (/affiner/.test(low)) {
+          state.step = 'refine';
+          add('Que souhaitez-vous modifier ?', 'bot');
+          quick(['Le budget', 'La ville']);
+        } else if (/demande|contact|rappel/.test(low)) {
+          state.step = 'name';
+          add('Très bien. Quel est votre nom ?', 'bot');
+        } else if (/terminer|merci|fin/.test(low)) {
+          state.step = 'done';
+          add('Merci d’avoir utilisé Horizon. À bientôt !', 'bot');
+          quick(['Nouvelle recherche']);
+        } else {
+          add('Choisissez une option ci-dessous.', 'bot');
+          quick(NEXT);
+        }
+        return;
+
+      case 'refine':
+        if (/budget|loyer|prix/.test(low)) {
+          state.step = 'budget';
+          add(state.project === 'location' ? 'Nouveau loyer maximum ?' : 'Nouveau budget maximum ?', 'bot');
+        } else if (/ville|secteur|quartier/.test(low)) {
+          askArea();
+        } else {
+          add('Budget ou ville ?', 'bot');
+          quick(['Le budget', 'La ville']);
+        }
+        return;
+
+      case 'name':
+        state.name = text; state.step = 'contact';
+        add(`Merci ${text}. Quel est votre téléphone ou votre email ?`, 'bot');
+        return;
+
+      case 'contact':
+        if (!/@|\d{8}/.test(text.replace(/[\s.\-]/g, ''))) {
+          add('Indiquez un email valide ou un numéro de téléphone.', 'bot');
+          return;
+        }
+        state.contact = text; recap(); return;
+
+      default:
+        add('La conversation est terminée. Lancez une nouvelle recherche quand vous voulez.', 'bot');
+        quick(['Nouvelle recherche']);
+    }
+  }
+
+  function submitMessage() {
+    const v = input.value.trim();
+    if (!v) return;
+    add(v, 'user');
+    input.value = '';
+    process(v);
+  }
+
+  form.addEventListener('submit', e => { e.preventDefault(); submitMessage(); });
+  document.getElementById('resetBtn').addEventListener('click', start);
+
+  if (load()) restore(); else start();
+})();
+</script>
+</body>
+</html>
