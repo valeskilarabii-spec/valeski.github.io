@@ -272,13 +272,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
           state.step = 'refine';
           add('Que souhaitez-vous modifier ?', 'bot');
           quick(['Le budget', 'La ville']);
-        } else if (/demande|contact|rappel/.test(low)) {
+        } else if (/demande|contact|rappel|^(oui|ok|d.accord|yes|volontiers|bien s[uû]r)\b/.test(low)) {
           state.step = 'name';
           add('Très bien. Quel est votre nom ?', 'bot');
         } else if (/terminer|merci|fin/.test(low)) {
           state.step = 'done';
           add('Merci d’avoir utilisé Horizon. À bientôt !', 'bot');
           quick(['Nouvelle recherche']);
+        } else if (/^non\b/.test(low)) {
+          add('Pas de souci. Vous pouvez affiner la recherche ou terminer.', 'bot');
+          quick(NEXT);
         } else if (isPlace(text)) {
           state.area = text; showListings();
         } else {
