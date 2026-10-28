@@ -82,7 +82,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
     {title:'T2 rénové', city:'Lille', area:'Lille Vieux-Lille', price:780, mode:'location', detail:'2 pièces · 40 m²'},
     {title:'T3 proche plage', city:'Nice', area:'Nice Centre', price:445000, mode:'achat', detail:'3 pièces · 62 m²'},
     {title:'T2 meublé', city:'Strasbourg', area:'Strasbourg Centre', price:850, mode:'location', detail:'2 pièces · 45 m²'},
-    {title:'T3 résidence récente', city:'Montpellier', area:'Montpellier Antigone', price:298000, mode:'achat', detail:'3 pièces · 64 m²'}
+    {title:'T3 résidence récente', city:'Montpellier', area:'Montpellier Antigone', price:298000, mode:'achat', detail:'3 pièces · 64 m²'},
+    {title:'Studio à rénover', city:'Paris', area:'Paris 18', price:189000, mode:'achat', detail:'Studio · 21 m²'},
+    {title:'T2 de charme', city:'Paris', area:'Paris 5 Quartier Latin', price:560000, mode:'achat', detail:'2 pièces · 40 m²'},
+    {title:'Studio investisseur', city:'Lyon', area:'Lyon 7', price:135000, mode:'achat', detail:'Studio · 22 m²'},
+    {title:'Studio lumineux', city:'Lille', area:'Lille Wazemmes', price:139000, mode:'achat', detail:'Studio · 24 m²'},
+    {title:'T2 proche Garonne', city:'Toulouse', area:'Toulouse Saint-Cyprien', price:178000, mode:'achat', detail:'2 pièces · 42 m²'}
   ];
 
   const fmt = n => Number(n).toLocaleString('fr-FR');
@@ -194,11 +199,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
     if (found.length) {
       add(`Voici ${found.length} bien(s) (annonces fictives pour la démo) :\n\n` + list(found), 'bot');
     } else {
+      const sameCity = anyCity ? [] : listings.filter(x => inMode(x) && inBudget(x) && q.includes(norm(x.city)));
       const alt = listings.filter(x => inMode(x) && inBudget(x));
-      if (alt.length) {
+      if (sameCity.length) {
+        add(`Pas d’annonce exacte pour « ${state.area} », mais voici des biens à ${sameCity[0].city} :\n\n` + list(sameCity), 'bot');
+      } else if (alt.length) {
         add(`Je n’ai rien trouvé pour « ${state.area} » avec ce budget. Voici des biens dans d’autres villes :\n\n` + list(alt), 'bot');
       } else {
-        add('Aucun bien ne correspond à ce budget. Essayez avec un budget plus élevé.', 'bot');
+        const cheapest = listings.filter(inMode).sort((a, b) => a.price - b.price).slice(0, 3);
+        const unit = mode === 'location' ? ' €/mois' : ' €';
+        add(`Aucun bien à ce budget. Les moins chers commencent à ${fmt(cheapest[0].price)}${unit} :\n\n` + list(cheapest), 'bot');
       }
     }
     state.step = 'next';
@@ -244,7 +254,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         state.area = text; showListings(); return;
 
       case 'next':
-        if (/affiner/.test(low)) {
+        if (text.length < 20 && moneyNumber(text) !== null && !/demande|contact/.test(low)) {
+          state.budget = text; showListings();
+        } else if (/affiner/.test(low)) {
           state.step = 'refine';
           add('Que souhaitez-vous modifier ?', 'bot');
           quick(['Le budget', 'La ville']);
@@ -274,8 +286,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
         return;
 
       case 'name':
-        state.name = text; state.step = 'contact';
-        add(`Merci ${text}. Quel est votre téléphone ou votre email ?`, 'bot');
+        state.name = text.replace(/^(bonjour[, ]*)?(mon nom est|mon nom c['’]est|je m['’]appelle|moi c['’]est|c['’]est|je suis)\s+/i, '').trim() || text;
+        state.step = 'contact';
+        add(`Merci ${state.name}. Quel est votre téléphone ou votre email ?`, 'bot');
         return;
 
       case 'contact':
