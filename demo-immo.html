@@ -125,7 +125,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   // ---- WhatsApp : numéro en format international, sans + ni espaces
   const WA_NUMBER = '2250700000000'; // À REMPLACER par le numéro du client
   const waLink = txt => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(txt)}`;
-  const cap = v => String(v || '').trim().replace(/(^|[\s\-'’])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+  const cap = v => String(v || '').trim().toLowerCase().replace(/(^|[\s\-'’])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
   const areaLabel = () => {
     const q = norm(state.area);
     return (!q || /^(peuimporte|partout|aucun|toutes?(lesvilles)?)$/.test(q)) ? 'toutes les villes' : cap(state.area);
