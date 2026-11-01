@@ -13,7 +13,7 @@ header{position:relative;z-index:1;background:linear-gradient(120deg,#0b1b30,#17
 header strong{font-family:Georgia,"Times New Roman",serif;font-size:25px;letter-spacing:.4px}
 header strong i{color:var(--gold);font-style:normal}
 header span{font-size:13px;opacity:.82}
-main{position:relative;z-index:1;max-width:1180px;margin:42px auto;padding:0 22px;display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:46px;align-items:center}
+main{position:relative;z-index:1;max-width:1180px;margin:42px auto;padding:0 22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:46px;align-items:center}
 .pitch{padding:18px 0 40px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#9a641b;background:#fff7e9;border:1px solid #f0dfc3;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .pitch h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(36px,4.4vw,57px);line-height:1.08;letter-spacing:-1.2px;margin:22px 0 18px;color:var(--navy);max-width:12em}
@@ -22,7 +22,6 @@ main{position:relative;z-index:1;max-width:1180px;margin:42px auto;padding:0 22p
 .trust span:before{content:"✓";color:#23805d;font-weight:800;margin-right:7px}
 .cities{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none;max-width:520px}
 .cities li{background:#ffffffc9;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:12px;color:var(--navy)}
-.chat{background:var(--paper);border-radius:22px;box-shadow:0 24px 70px #10243e24;border:1px solid #d9e3ef;overflow:hidden;display:flex;flex-direction:column;height:690px;max-height:calc(100vh - 110px);min-height:500px}
 .chathead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:15px 17px;border-bottom:1px solid var(--line);font-weight:700;color:var(--navy);background:#fff}
 .botidentity{display:flex;align-items:center;gap:10px}
 .botavatar{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#163e68,#2d6da9);display:grid;place-items:center;color:#fff;font-size:16px}
@@ -44,8 +43,34 @@ main{position:relative;z-index:1;max-width:1180px;margin:42px auto;padding:0 22p
 .composer button{border:0;border-radius:999px;background:var(--navy);color:#fff;padding:0 19px;font-weight:700;cursor:pointer}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .disclaimer{font-size:11px;color:#8794a6;margin-top:18px;max-width:500px;line-height:1.5}
-@media(max-width:900px){main{grid-template-columns:1fr;gap:12px;margin:25px auto}.pitch{padding:10px 0}.pitch h1{font-size:39px}.chat{height:680px;max-height:none;max-width:560px;width:100%;margin:0 auto}}
-@media(max-width:520px){header{padding:16px 18px}main{padding:0 13px}.pitch h1{font-size:34px}.chat{height:650px;border-radius:17px}.chathead{padding:12px}.chathead .actions{gap:5px}.chathead button,.chathead .wa{font-size:10px;padding:6px 8px}.msg{max-width:96%}}
+.cta{border:0;background:var(--navy);color:#fff;border-radius:999px;padding:14px 22px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 10px 24px #10243e30;margin:2px 0 6px}
+.cta:hover{background:var(--blue)}
+.art img{display:block;width:100%;border-radius:24px;box-shadow:0 24px 70px #10243e24;border:6px solid #fff;background:#fff}
+.chat{position:fixed;right:24px;bottom:104px;z-index:60;width:410px;max-width:calc(100vw - 24px);height:min(660px,calc(100vh - 130px));background:var(--paper);border-radius:22px;box-shadow:0 24px 70px #10243e40;border:1px solid #d9e3ef;overflow:hidden;display:none;flex-direction:column;transform-origin:bottom right}
+.chat.open{display:flex;animation:pop .22s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.launcher{position:fixed;right:24px;bottom:24px;z-index:70;width:66px;height:66px;border-radius:50%;border:0;cursor:pointer;color:#fff;background:linear-gradient(145deg,#163e68,#2d6da9);box-shadow:0 14px 34px #10243e55;display:grid;place-items:center;transition:transform .15s}
+.launcher:hover{transform:scale(1.06)}
+.launcher svg{width:30px;height:30px}
+.launcher .ic-x{display:none}
+.launcher.on .ic-chat{display:none}
+.launcher.on .ic-x{display:block}
+.teaser{position:fixed;right:24px;bottom:102px;z-index:70;background:#fff;color:var(--navy);border:1px solid var(--line);border-radius:16px 16px 4px 16px;padding:11px 14px;font-size:13px;font-weight:600;box-shadow:0 10px 30px #10243e26;max-width:230px;cursor:pointer;animation:pop .3s ease-out}
+.cards{display:flex;flex-direction:column;gap:12px;align-self:stretch}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 4px 14px #152c4514}
+.card .ph{position:relative;aspect-ratio:2/1;background:#e8eef5}
+.card .ph img{display:block;width:100%;height:100%;object-fit:cover}
+.card .num{position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.card .tag{position:absolute;right:10px;top:10px;background:#fffffff0;color:var(--navy);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700}
+.card .cbody{padding:11px 13px 13px}
+.card h4{margin:0;font-size:14px;color:var(--navy)}
+.card .area{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.card .det{margin:6px 0 0;font-size:12px;color:#46566c}
+.card .price{margin-top:8px;font-size:17px;font-weight:800;color:var(--navy)}
+.card .choose{margin-top:10px;width:100%;border:1px solid #c5d8eb;background:#eef5fd;color:var(--blue);border-radius:999px;padding:9px;font-size:12px;font-weight:700;cursor:pointer}
+.card .choose:hover{background:var(--blue);color:#fff}
+@media(max-width:900px){main{grid-template-columns:1fr;gap:18px;margin:25px auto}.art{display:none}.pitch{padding:10px 0 80px}.pitch h1{font-size:39px}}
+@media(max-width:520px){header{padding:16px 18px}main{padding:0 13px}.pitch h1{font-size:34px}.chat{right:10px;left:10px;width:auto;max-width:none;bottom:92px;height:calc(100vh - 110px);height:calc(100dvh - 110px);border-radius:17px}.launcher{right:14px;bottom:14px}.teaser{right:14px;bottom:90px}.chathead{padding:12px}.chathead .actions{gap:5px}.chathead button,.chathead .wa{font-size:10px;padding:6px 8px}.msg{max-width:96%}}
 </style>
 </head>
 <body>
@@ -54,22 +79,26 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 <section class="pitch">
 <h1>Trouvez le bien qui correspond à votre projet.</h1>
 <p>Dites à l’assistant si vous voulez acheter ou louer, votre budget et la ville qui vous intéresse. Il vous montre des biens et transmet votre demande à un conseiller.</p>
+<button type="button" class="cta" id="ctaBtn">Discuter avec l’assistant</button>
 <div class="trust"><span>Achat & location</span><span>Recherche par budget</span><span>Contact conseiller</span></div>
 <ul class="cities"><li>Lyon</li><li>Paris</li><li>Bordeaux</li><li>Marseille</li><li>Toulouse</li><li>Nantes</li><li>Lille</li><li>Nice</li><li>Strasbourg</li><li>Montpellier</li></ul>
 </section>
-<section class="chat" aria-label="Assistant immobilier">
-<div class="chathead"><div class="botidentity"><div class="botavatar">H</div><div>Assistant Horizon<small>Conseiller immobilier virtuel · Démo</small></div></div><div class="actions"><a class="wa" id="waTop" target="_blank" rel="noopener">WhatsApp</a><button type="button" id="resetBtn">Nouvelle conversation</button></div></div>
+<aside class="art" aria-hidden="true"><img id="artImg" alt=""></aside>
+</main>
+<div class="teaser" id="teaser" role="button" tabindex="0">Une question ? Je vous aide à trouver un bien 👋</div>
+<button type="button" class="launcher" id="launcher" aria-label="Ouvrir l’assistant" aria-expanded="false"><svg class="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg><svg class="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+<section class="chat" id="chat" aria-label="Assistant immobilier">
+<div class="chathead"><div class="botidentity"><div class="botavatar">H</div><div>Assistant Horizon<small>Conseiller immobilier virtuel · Démo</small></div></div><div class="actions"><a class="wa" id="waTop" target="_blank" rel="noopener">WhatsApp</a><button type="button" id="resetBtn" title="Nouvelle conversation" aria-label="Nouvelle conversation">↺</button><button type="button" id="closeBtn" title="Fermer" aria-label="Fermer">✕</button></div></div>
 <div id="messages" aria-live="polite"></div>
 <form class="composer" id="chatForm"><input id="input" placeholder="Écrivez votre message…" aria-label="Votre message" autocomplete="off"><button type="submit">Envoyer</button></form>
 </section>
-</main>
 <script>
 (() => {
   const KEY = 'horizon_chat_v2';
   const messages = document.getElementById('messages');
   const input = document.getElementById('input');
   const form = document.getElementById('chatForm');
-  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:'', shown:[], chosen:'', chosenGeo:null});
+  const fresh = () => ({step:'project', project:'', budget:'', area:'', name:'', contact:'', shown:[], chosen:'', chosenGeo:null, setId:0});
   let state = fresh();
   let history = [];
   let locToken = 0;
@@ -116,6 +145,30 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     'Nice Centre':[43.700,7.268], 'Strasbourg Centre':[48.583,7.748], 'Montpellier Antigone':[43.608,3.893]
   };
   listings.forEach(x => { const c = COORDS[x.area]; if (c) { x.lat = c[0]; x.lng = c[1]; } });
+
+  // ---- Visuels des biens : illustrations générées en code.
+  // Pour de vraies photos, déposez-les dans un dossier images/ du dépôt puis déclarez-les ici.
+  const PHOTOS = {
+    // 'T2 lumineux|Lyon 6': 'images/t2-lyon6.jpg',
+  };
+  const PALETTES = [['#bcd7f2','#eaf3fb','#f2ede4','#2f5d8c'],['#f6d9b0','#fdf0dc','#efe6da','#a65d2a'],['#c6e2d4','#eef8f2','#f0eee6','#2f7a5b'],['#d6cdf0','#f3effb','#ece8f2','#5b4b9a'],['#f2c9c9','#fcefef','#f1e9e4','#a24848']];
+  const kindOf = x => /maison/i.test(x.title) ? 'house' : 'building';
+  const seedOf = x => Array.from(x.title + x.area).reduce((a, c) => a + c.charCodeAt(0), 0);
+  function illu(kind, seed) {
+    const p = PALETTES[seed % PALETTES.length];
+    let g = '';
+    if (kind === 'house') {
+      g = `<rect y="150" width="400" height="50" fill="#9bbf8a"/><polygon points="110,150 110,92 200,40 290,92 290,150" fill="${p[2]}"/><polygon points="95,96 200,30 305,96 290,106 200,50 110,106" fill="${p[3]}"/><rect x="188" y="104" width="26" height="46" fill="${p[3]}"/><rect x="130" y="104" width="38" height="30" fill="#cfe3f5"/><rect x="232" y="104" width="38" height="30" fill="#cfe3f5"/><circle cx="340" cy="120" r="24" fill="#6fa36a"/><rect x="337" y="132" width="6" height="26" fill="#7a5b3a"/>`;
+    } else {
+      let w = '';
+      for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) w += `<rect x="${134 + i * 36}" y="${50 + j * 24}" width="22" height="14" fill="${(i * 7 + j * 3 + seed) % 3 === 0 ? '#f6d68a' : '#cfe3f5'}"/>`;
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) w += `<rect x="${70 + i * 26}" y="${88 + j * 20}" width="16" height="11" fill="#cfe3f5"/>`;
+      for (let j = 0; j < 3; j++) w += `<rect x="${296}" y="${74 + j * 22}" width="38" height="12" fill="${(j + seed) % 2 ? '#f6d68a' : '#cfe3f5'}"/>`;
+      g = `<rect y="150" width="400" height="50" fill="#c9d3dc"/><rect x="60" y="76" width="60" height="74" fill="${p[2]}" opacity=".85"/><rect x="280" y="62" width="70" height="88" fill="${p[2]}" opacity=".9"/><rect x="120" y="36" width="160" height="114" fill="${p[2]}"/><rect x="114" y="30" width="172" height="8" fill="${p[3]}"/><rect x="190" y="128" width="20" height="22" fill="${p[3]}"/>${w}`;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p[0]}"/><stop offset="1" stop-color="${p[1]}"/></linearGradient></defs><rect width="400" height="200" fill="url(#s)"/><circle cx="342" cy="38" r="16" fill="#ffe6a3" opacity=".85"/>${g}</svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
 
   const fmt = n => Number(n).toLocaleString('fr-FR');
   const priceTxt = x => fmt(x.price) + (x.mode === 'location' ? ' €/mois' : ' €');
@@ -220,9 +273,64 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     history.push({t:'quick', opts});
     save(); scroll();
   }
+  function drawCards(items, set, pick) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cards';
+    items.forEach(it => {
+      const c = document.createElement('article');
+      c.className = 'card';
+      const ph = document.createElement('div');
+      ph.className = 'ph';
+      const im = document.createElement('img');
+      const fallback = illu(it.kind, it.seed);
+      im.alt = it.title + ' — ' + it.area;
+      im.onerror = () => { im.onerror = null; im.src = fallback; };
+      im.onload = scroll;
+      im.src = it.img || fallback;
+      ph.appendChild(im);
+      if (it.n) { const b = document.createElement('span'); b.className = 'num'; b.textContent = it.n; ph.appendChild(b); }
+      const tg = document.createElement('span');
+      tg.className = 'tag';
+      tg.textContent = it.mode === 'location' ? 'Location' : 'Achat';
+      ph.appendChild(tg);
+      c.appendChild(ph);
+      const body = document.createElement('div');
+      body.className = 'cbody';
+      const h = document.createElement('h4'); h.textContent = it.title; body.appendChild(h);
+      const a = document.createElement('p'); a.className = 'area'; a.textContent = it.area; body.appendChild(a);
+      const d = document.createElement('p'); d.className = 'det'; d.textContent = it.detail + (it.km ? ' · à ' + it.km : ''); body.appendChild(d);
+      const pr = document.createElement('div'); pr.className = 'price'; pr.textContent = it.price; body.appendChild(pr);
+      if (pick && it.n) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choose';
+        btn.textContent = 'Choisir ce bien';
+        btn.addEventListener('click', () => {
+          if (set !== state.setId || state.step !== 'next') return;
+          input.value = String(it.n);
+          submitMessage();
+        });
+        body.appendChild(btn);
+      }
+      c.appendChild(body);
+      wrap.appendChild(c);
+    });
+    messages.appendChild(wrap);
+  }
+  function cards(arr, opts = {}) {
+    const pick = opts.pick !== false;
+    const items = arr.map((x, i) => ({
+      n: pick ? i + 1 : 0, title: x.title, area: x.area, detail: x.detail, price: priceTxt(x), mode: x.mode,
+      kind: kindOf(x), seed: seedOf(x), img: PHOTOS[x.title + '|' + x.area] || '', km: x.km != null ? fmtKm(x.km) : ''
+    }));
+    clearQuick();
+    drawCards(items, state.setId, pick);
+    history.push({t:'cards', items, set: state.setId, pick});
+    save(); scroll();
+  }
   function restore() {
     messages.innerHTML = '';
-    history.forEach(h => h.t === 'msg' ? drawMsg(h.text, h.w) : drawQuick(h.opts));
+    history.forEach(h => h.t === 'msg' ? drawMsg(h.text, h.w) : h.t === 'cards' ? drawCards(h.items, h.set, h.pick) : drawQuick(h.opts));
     scroll();
   }
   function start() {
@@ -231,7 +339,9 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     quick(START);
   }
   function restart() {
+    const sid = state.setId;
     state = fresh();
+    state.setId = sid;
     add('C’est reparti. Vous souhaitez acheter, louer, ou voir les biens ?', 'bot');
     quick(START);
   }
@@ -252,27 +362,27 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     const inMode = x => mode === 'tous' || x.mode === mode;
     const inBudget = x => max === null || x.price <= max;
     const inArea = x => anyCity || norm(x.area).includes(q) || norm(x.city).includes(q);
-    const line = (x, i) => `${i + 1}. ${x.title} — ${x.area}\n${x.detail}\n${x.mode === 'location' ? fmt(x.price) + ' €/mois' : fmt(x.price) + ' €'}`;
-    const list = arr => {
+    const present = (intro, arr) => {
       state.shown = arr.slice(0, 6);
-      const shown = state.shown.map(line).join('\n\n');
-      return arr.length > 6 ? shown + `\n\n… et ${arr.length - 6} autre(s) bien(s).` : shown;
+      state.setId++;
+      add(intro + (arr.length > 6 ? ' Je vous montre les 6 premiers.' : '') + ' Touchez « Choisir ce bien » ou tapez son numéro.', 'bot');
+      cards(state.shown);
     };
 
     const found = listings.filter(x => inMode(x) && inBudget(x) && inArea(x));
     if (found.length) {
-      add(`Voici ${found.length} bien${found.length > 1 ? 's' : ''} (annonces fictives pour la démo) :\n\n` + list(found) + '\n\nTapez le numéro d’un bien pour le choisir.', 'bot');
+      present(`Voici ${found.length} bien${found.length > 1 ? 's' : ''} (annonces fictives pour la démo).`, found);
     } else {
       const sameCity = anyCity ? [] : listings.filter(x => inMode(x) && inBudget(x) && q.includes(norm(x.city)));
       const alt = listings.filter(x => inMode(x) && inBudget(x));
       if (sameCity.length) {
-        add(`Pas d’annonce exacte pour « ${state.area} », mais voici des biens à ${sameCity[0].city} :\n\n` + list(sameCity), 'bot');
+        present(`Pas d’annonce exacte pour « ${state.area} », mais voici des biens à ${sameCity[0].city}.`, sameCity);
       } else if (alt.length) {
-        add(`Je n’ai rien trouvé pour « ${state.area} » avec ce budget. Voici des biens dans d’autres villes :\n\n` + list(alt), 'bot');
+        present(`Je n’ai rien trouvé pour « ${state.area} » avec ce budget. Voici des biens dans d’autres villes.`, alt);
       } else {
         const cheapest = listings.filter(inMode).sort((a, b) => a.price - b.price).slice(0, 3);
         const unit = mode === 'location' ? ' €/mois' : ' €';
-        add(`Aucun bien à ce budget. Les moins chers commencent à ${fmt(cheapest[0].price)}${unit} :\n\n` + list(cheapest), 'bot');
+        present(`Aucun bien à ce budget. Les moins chers commencent à ${fmt(cheapest[0].price)}${unit}.`, cheapest);
       }
     }
     state.step = 'next';
@@ -299,11 +409,12 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
       if (!pool.length) { add('Aucun bien avec une position cartographique renseignée. Choisissez une ville pour continuer.', 'bot'); state.step = 'area'; quick(['Lyon','Paris','Bordeaux','Peu importe']); return; }
       state.project = mode; state.chosen = ''; state.chosenGeo = null;
       state.shown = pool.slice(0, 6);
-      const lines = state.shown.map((x, i) => `${i + 1}. ${x.title} — ${x.area}\n${x.detail}\n${priceTxt(x)} · à ${fmtKm(x.km)}`).join('\n\n');
+      state.setId++;
       const intro = pool[0].km > 150
-        ? 'Aucun bien à moins de 150 km de votre position. Voici les plus proches (annonces fictives) :'
-        : 'Voici les biens les plus proches de vous (annonces fictives) :';
-      add(intro + '\n\n' + lines + '\n\nTapez le numéro d’un bien pour le choisir.', 'bot');
+        ? 'Aucun bien à moins de 150 km de votre position. Voici les plus proches (annonces fictives).'
+        : 'Voici les biens les plus proches de vous (annonces fictives).';
+      add(intro + ' Touchez « Choisir ce bien » ou tapez son numéro.', 'bot');
+      cards(state.shown);
       state.step = 'next';
       quick(NEXT);
     }, () => {
@@ -372,7 +483,9 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
           if (x) {
             state.chosen = `${x.title} — ${x.area} (${priceTxt(x)})`;
             state.chosenGeo = {lat: x.lat, lng: x.lng};
-            add(`Vous avez choisi : ${state.chosen}.\nSouhaitez-vous l’itinéraire, ou que je transmette votre demande à un conseiller ?`, 'bot');
+            add('Vous avez choisi ce bien :', 'bot');
+            cards([x], {pick: false});
+            add('Souhaitez-vous l’itinéraire, ou que je transmette votre demande à un conseiller ?', 'bot');
             quick(NEXT_CHOSEN);
           } else {
             add(`Tapez un numéro entre 1 et ${state.shown.length}, ou choisissez une option.`, 'bot');
@@ -461,6 +574,29 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 
   form.addEventListener('submit', e => { e.preventDefault(); submitMessage(); });
   document.getElementById('resetBtn').addEventListener('click', start);
+
+  // ---- Chat flottant
+  const chatEl = document.getElementById('chat');
+  const launcher = document.getElementById('launcher');
+  const teaser = document.getElementById('teaser');
+  const setOpen = open => {
+    chatEl.classList.toggle('open', open);
+    launcher.classList.toggle('on', open);
+    launcher.setAttribute('aria-expanded', String(open));
+    launcher.setAttribute('aria-label', open ? 'Fermer l’assistant' : 'Ouvrir l’assistant');
+    if (open) {
+      teaser.style.display = 'none';
+      scroll();
+      if (window.innerWidth > 900) input.focus({preventScroll: true});
+    }
+  };
+  launcher.addEventListener('click', () => setOpen(!chatEl.classList.contains('open')));
+  teaser.addEventListener('click', () => setOpen(true));
+  document.getElementById('closeBtn').addEventListener('click', () => setOpen(false));
+  document.getElementById('ctaBtn').addEventListener('click', () => setOpen(true));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+  document.getElementById('artImg').src = illu('building', 0);
+  if (window.innerWidth > 900) setTimeout(() => setOpen(true), 700);
 
   if (load()) {
     if (state.step === 'locating') state.step = state.shown.length ? 'next' : 'project';
