@@ -125,6 +125,16 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   // ---- WhatsApp : numéro en format international, sans + ni espaces
   const WA_NUMBER = '2250700000000'; // À REMPLACER par le numéro du client
   const waLink = txt => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(txt)}`;
+  const cap = v => String(v || '').trim().replace(/(^|[\s\-'’])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+  const areaLabel = () => {
+    const q = norm(state.area);
+    return (!q || /^(peuimporte|partout|aucun|toutes?(lesvilles)?)$/.test(q)) ? 'toutes les villes' : cap(state.area);
+  };
+  // Plafonds de bon sens : 20 000 000 € à l'achat, 20 000 €/mois en location
+  const tooHigh = v => { const n = moneyNumber(v); return n !== null && n > (state.project === 'location' ? 20000 : 20000000); };
+  const tooHighMsg = () => state.project === 'location'
+    ? 'Ce loyer semble trop élevé. Exemple : 900 ou 1 500.'
+    : 'Ce budget semble trop élevé. Exemples : 300000, 300 000 ou 300k.';
   document.getElementById('waTop').href = waLink('Bonjour, je souhaite des informations sur vos biens.');
 
   function moneyNumber(value) {
@@ -298,10 +308,10 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   function recap() {
     const projet = {achat:'Achat', location:'Location', tous:'Visite des biens'}[state.project] || state.project;
     const b = moneyNumber(state.budget);
-    const budgetTxt = b !== null ? fmt(b) + (state.project === 'location' ? ' €/mois' : ' €') : (state.budget || 'non précisé');
-    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${budgetTxt}\n• Ville : ${state.area || 'non précisée'}${state.chosen ? '\n• Bien : ' + state.chosen : ''}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
+    const budgetTxt = b !== null ? fmt(b) + (state.project === 'location' ? ' €/mois' : ' €') : 'non précisé';
+    add(`Demande enregistrée (démo) :\n• Projet : ${projet}\n• Budget : ${budgetTxt}\n• Ville : ${areaLabel()}${state.chosen ? '\n• Bien : ' + state.chosen : ''}\n• Contact : ${state.name}, ${state.contact}\n\nUn conseiller vous recontactera.`, 'bot');
     state.step = 'done';
-    const waMsg = `Bonjour, je suis ${state.name}. Projet : ${projet}, budget : ${budgetTxt}, ville : ${state.area || 'non précisée'}${state.chosen ? ', bien : ' + state.chosen : ''}.`;
+    const waMsg = `Bonjour, je suis ${state.name}. Projet : ${projet}, budget : ${budgetTxt}, ville : ${areaLabel()}${state.chosen ? ', bien : ' + state.chosen : ''}.`;
     quick([{label:'Continuer sur WhatsApp', href: waLink(waMsg)}, 'Nouvelle recherche']);
   }
 
@@ -335,6 +345,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
           add('Je n’ai pas compris ce montant. Exemples : 300000, 300 000 ou 300k.', 'bot');
           return;
         }
+        if (tooHigh(text)) { add(tooHighMsg(), 'bot'); return; }
         state.budget = text; askArea(); return;
 
       case 'area':
@@ -359,7 +370,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
             quick(NEXT);
           }
         } else if (text.length < 20 && moneyNumber(text) >= 100 && !/demande|contact/.test(low)) {
-          state.budget = text; showListings();
+          if (tooHigh(text)) { add(tooHighMsg(), 'bot'); quick(NEXT); }
+          else { state.budget = text; showListings(); }
         } else if (NEAR.test(low)) {
           nearby();
         } else if (/itin[ée]raire|y aller/.test(low)) {
@@ -412,6 +424,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 
       case 'name':
         state.name = text.replace(/^(bonjour[, ]*)?(mon nom est|mon nom c['’]est|je m['’]appelle|moi c['’]est|c['’]est|je suis)\s+/i, '').trim() || text;
+        state.name = cap(state.name);
         state.step = 'contact';
         add(`Merci ${state.name}. Quel est votre téléphone ou votre email ?`, 'bot');
         return;
